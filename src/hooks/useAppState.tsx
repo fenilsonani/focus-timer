@@ -51,6 +51,7 @@ interface AppStateContextType {
 const defaultSettings: AppSettings = {
   theme: 'auto',
   colorTheme: 'default',
+  borderRadiusStyle: 'rounded',
   defaultFocusDuration: 1500, // 25 minutes
   hapticFeedback: true,
   keepScreenAwake: true,

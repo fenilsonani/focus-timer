@@ -295,7 +295,7 @@ export const SettingsScreen: React.FC = () => {
 
           <SettingRow
             title="Theme & Colors"
-            subtitle={`${settings.theme === 'auto' ? 'Auto' : settings.theme === 'light' ? 'Light' : 'Dark'} • ${(settings.colorTheme || 'default').charAt(0).toUpperCase() + (settings.colorTheme || 'default').slice(1)}`}
+            subtitle={`${settings.theme === 'auto' ? 'Auto' : settings.theme === 'light' ? 'Light' : 'Dark'} • ${(settings.colorTheme || 'default').charAt(0).toUpperCase() + (settings.colorTheme || 'default').slice(1)} • ${(settings.borderRadiusStyle || 'rounded').charAt(0).toUpperCase() + (settings.borderRadiusStyle || 'rounded').slice(1)} corners`}
             icon="palette"
             onPress={() => setShowThemeSelector(true)}
           />

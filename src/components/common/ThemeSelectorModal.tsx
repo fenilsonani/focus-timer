@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  View,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  SafeAreaView,
-} from 'react-native';
+import { Modal, SafeAreaView, StatusBar } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import { ThemeSelector } from './ThemeSelector';
 
@@ -19,35 +12,23 @@ export const ThemeSelectorModal: React.FC<ThemeSelectorModalProps> = ({
   visible,
   onClose,
 }) => {
-  const { theme, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <Modal
       visible={visible}
       animationType="slide"
-      presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'fullScreen'}
+      presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.colors.background}
-      />
-      <SafeAreaView
-        style={[
-          styles.container,
-          {
-            backgroundColor: theme.colors.background,
-          },
-        ]}
-      >
+      <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+          translucent
+        />
         <ThemeSelector onClose={onClose} />
       </SafeAreaView>
     </Modal>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-}); 
+}; 

@@ -56,7 +56,8 @@ export interface AppState {
 
 export interface AppSettings {
   theme: 'light' | 'dark' | 'auto';
-  colorTheme: 'default' | 'monochrome' | 'ocean' | 'forest' | 'sunset' | 'purple';
+  colorTheme: 'default' | 'focus' | 'energetic' | 'calm' | 'creative' | 'nature' | 'minimal' | 'warm';
+  borderRadiusStyle: 'minimal' | 'rounded' | 'curved' | 'pill';
   defaultFocusDuration: number;
   hapticFeedback: boolean;
   keepScreenAwake: boolean;

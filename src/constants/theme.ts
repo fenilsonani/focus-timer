@@ -203,55 +203,293 @@ export const Colors = {
     shadow: '#0000003A',
     accent: '#C4B5FD',
   },
+  focus: {
+    primary: '#3B82F6',      // Calming blue for concentration
+    primaryDark: '#2563EB',
+    secondary: '#06B6D4',    // Cyan for clarity
+    secondaryDark: '#0891B2',
+    background: '#FAFBFF',   // Very light blue tint
+    surface: '#F1F5F9',
+    surfaceVariant: '#E2E8F0',
+    onSurface: '#1E293B',
+    onSurfaceVariant: '#475569',
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    border: '#CBD5E1',
+    shadow: '#3B82F61A',
+    accent: '#0EA5E9',
+  },
+  focusDark: {
+    primary: '#60A5FA',
+    primaryDark: '#3B82F6',
+    secondary: '#22D3EE',
+    secondaryDark: '#06B6D4',
+    background: '#0C1222',   // Deep blue-black
+    surface: '#1E293B',
+    surfaceVariant: '#334155',
+    onSurface: '#F1F5F9',
+    onSurfaceVariant: '#94A3B8',
+    success: '#34D399',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#475569',
+    shadow: '#0000003A',
+    accent: '#38BDF8',
+  },
+  energetic: {
+    primary: '#FF6B35',      // Vibrant orange for energy
+    primaryDark: '#E55100',
+    secondary: '#FF9F1C',    // Yellow-orange for motivation
+    secondaryDark: '#FF8C00',
+    background: '#FFFBF5',   // Warm white
+    surface: '#FFF7ED',
+    surfaceVariant: '#FFEDD5',
+    onSurface: '#7C2D12',
+    onSurfaceVariant: '#9A3412',
+    success: '#22C55E',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    border: '#FDBA74',
+    shadow: '#FF6B351A',
+    accent: '#FB923C',
+  },
+  energeticDark: {
+    primary: '#FF8A50',
+    primaryDark: '#FF6B35',
+    secondary: '#FFB347',
+    secondaryDark: '#FF9F1C',
+    background: '#1A0F0A',   // Dark warm brown
+    surface: '#431407',
+    surfaceVariant: '#7C2D12',
+    onSurface: '#FFF7ED',
+    onSurfaceVariant: '#FFEDD5',
+    success: '#34D399',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#9A3412',
+    shadow: '#0000003A',
+    accent: '#FDBA74',
+  },
+  calm: {
+    primary: '#22D3EE',      // Soft teal for peace
+    primaryDark: '#06B6D4',
+    secondary: '#67E8F9',    // Light cyan for serenity
+    secondaryDark: '#22D3EE',
+    background: '#F0FDFF',   // Very pale cyan
+    surface: '#ECFEFF',
+    surfaceVariant: '#CFFAFE',
+    onSurface: '#164E63',
+    onSurfaceVariant: '#0E7490',
+    success: '#10B981',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#A5F3FC',
+    shadow: '#22D3EE1A',
+    accent: '#06B6D4',
+  },
+  calmDark: {
+    primary: '#67E8F9',
+    primaryDark: '#22D3EE',
+    secondary: '#A5F3FC',
+    secondaryDark: '#67E8F9',
+    background: '#083344',   // Deep teal
+    surface: '#164E63',
+    surfaceVariant: '#0E7490',
+    onSurface: '#ECFEFF',
+    onSurfaceVariant: '#CFFAFE',
+    success: '#34D399',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#155E75',
+    shadow: '#0000003A',
+    accent: '#A5F3FC',
+  },
+  creative: {
+    primary: '#8B5CF6',      // Purple for creativity
+    primaryDark: '#7C3AED',
+    secondary: '#EC4899',    // Pink for inspiration
+    secondaryDark: '#DB2777',
+    background: '#FDFBFF',   // Very light purple
+    surface: '#FAF5FF',
+    surfaceVariant: '#F3E8FF',
+    onSurface: '#581C87',
+    onSurfaceVariant: '#6B21A8',
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    border: '#C4B5FD',
+    shadow: '#8B5CF61A',
+    accent: '#A855F7',
+  },
+  creativeDark: {
+    primary: '#A78BFA',
+    primaryDark: '#8B5CF6',
+    secondary: '#F472B6',
+    secondaryDark: '#EC4899',
+    background: '#1E1B2E',   // Deep purple
+    surface: '#2E1065',
+    surfaceVariant: '#581C87',
+    onSurface: '#FAF5FF',
+    onSurfaceVariant: '#E9D5FF',
+    success: '#34D399',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#6B21A8',
+    shadow: '#0000003A',
+    accent: '#C084FC',
+  },
+  nature: {
+    primary: '#059669',      // Forest green for natural feeling
+    primaryDark: '#047857',
+    secondary: '#84CC16',    // Lime green for growth
+    secondaryDark: '#65A30D',
+    background: '#F0FDF4',   // Very light green
+    surface: '#DCFCE7',
+    surfaceVariant: '#BBF7D0',
+    onSurface: '#14532D',
+    onSurfaceVariant: '#166534',
+    success: '#22C55E',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    border: '#86EFAC',
+    shadow: '#0596691A',
+    accent: '#10B981',
+  },
+  natureDark: {
+    primary: '#34D399',
+    primaryDark: '#10B981',
+    secondary: '#A3E635',
+    secondaryDark: '#84CC16',
+    background: '#0A1F0F',   // Deep forest
+    surface: '#052E16',
+    surfaceVariant: '#14532D',
+    onSurface: '#DCFCE7',
+    onSurfaceVariant: '#BBF7D0',
+    success: '#22C55E',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#166534',
+    shadow: '#0000003A',
+    accent: '#86EFAC',
+  },
+  minimal: {
+    primary: '#1F2937',      // Clean gray for minimalism
+    primaryDark: '#111827',
+    secondary: '#6B7280',    // Neutral gray
+    secondaryDark: '#4B5563',
+    background: '#FFFFFF',
+    surface: '#F9FAFB',
+    surfaceVariant: '#F3F4F6',
+    onSurface: '#111827',
+    onSurfaceVariant: '#6B7280',
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    border: '#E5E7EB',
+    shadow: '#0000001A',
+    accent: '#374151',
+  },
+  minimalDark: {
+    primary: '#F3F4F6',
+    primaryDark: '#E5E7EB',
+    secondary: '#9CA3AF',
+    secondaryDark: '#6B7280',
+    background: '#0F0F0F',   // True black minimalism
+    surface: '#1F2937',
+    surfaceVariant: '#374151',
+    onSurface: '#F9FAFB',
+    onSurfaceVariant: '#D1D5DB',
+    success: '#34D399',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#4B5563',
+    shadow: '#0000003A',
+    accent: '#9CA3AF',
+  },
+  warm: {
+    primary: '#DC2626',      // Warm red for cozy feeling
+    primaryDark: '#B91C1C',
+    secondary: '#F59E0B',    // Amber warmth
+    secondaryDark: '#D97706',
+    background: '#FFFBF0',   // Warm off-white
+    surface: '#FEF3C7',
+    surfaceVariant: '#FDE68A',
+    onSurface: '#92400E',
+    onSurfaceVariant: '#B45309',
+    success: '#059669',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    border: '#FBBF24',
+    shadow: '#DC26261A',
+    accent: '#EA580C',
+  },
+  warmDark: {
+    primary: '#EF4444',
+    primaryDark: '#DC2626',
+    secondary: '#FBBF24',
+    secondaryDark: '#F59E0B',
+    background: '#1C1000',   // Dark warm amber
+    surface: '#451A03',
+    surfaceVariant: '#92400E',
+    onSurface: '#FEF3C7',
+    onSurfaceVariant: '#FDE68A',
+    success: '#34D399',
+    error: '#F87171',
+    warning: '#FBBF24',
+    border: '#B45309',
+    shadow: '#0000003A',
+    accent: '#FDBA74',
+  },
 };
 
 export const Typography = {
   hero: {
     fontSize: 48,
+    fontWeight: '300' as const,
     lineHeight: 56,
-    fontWeight: '800' as const,
-    letterSpacing: -1,
+    letterSpacing: -2,
   },
   title: {
     fontSize: 32,
+    fontWeight: '600' as const,
     lineHeight: 40,
-    fontWeight: '700' as const,
-    letterSpacing: -0.5,
+    letterSpacing: -1,
   },
   heading: {
     fontSize: 24,
-    lineHeight: 32,
     fontWeight: '600' as const,
+    lineHeight: 32,
+    letterSpacing: -0.5,
   },
   subheading: {
     fontSize: 20,
-    lineHeight: 28,
     fontWeight: '500' as const,
+    lineHeight: 28,
+    letterSpacing: -0.25,
   },
   body: {
     fontSize: 16,
+    fontWeight: '400' as const,
     lineHeight: 24,
-    fontWeight: '400' as const,
-  },
-  bodyLarge: {
-    fontSize: 18,
-    lineHeight: 28,
-    fontWeight: '400' as const,
+    letterSpacing: 0,
   },
   caption: {
     fontSize: 14,
+    fontWeight: '400' as const,
     lineHeight: 20,
-    fontWeight: '400' as const,
+    letterSpacing: 0.25,
   },
-  small: {
+  label: {
     fontSize: 12,
+    fontWeight: '500' as const,
     lineHeight: 16,
-    fontWeight: '400' as const,
+    letterSpacing: 0.5,
   },
   timer: {
     fontSize: 72,
-    lineHeight: 80,
     fontWeight: '300' as const,
+    lineHeight: 80,
     letterSpacing: -2,
   },
 };
@@ -267,14 +505,45 @@ export const Spacing = {
 };
 
 export const BorderRadius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  full: 9999,
+  minimal: {
+    xs: 2,
+    sm: 4,
+    md: 6,
+    lg: 8,
+    xl: 12,
+    xxl: 16,
+    round: 9999,
+  },
+  rounded: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
+    round: 9999,
+  },
+  curved: {
+    xs: 6,
+    sm: 12,
+    md: 18,
+    lg: 24,
+    xl: 30,
+    xxl: 36,
+    round: 9999,
+  },
+  pill: {
+    xs: 8,
+    sm: 16,
+    md: 24,
+    lg: 32,
+    xl: 40,
+    xxl: 48,
+    round: 9999,
+  },
 };
 
-export const Shadows = {
+export const Shadow = {
   sm: {
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -282,22 +551,22 @@ export const Shadows = {
     elevation: 1,
   },
   md: {
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 4,
+    elevation: 3,
   },
   lg: {
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 5,
   },
   xl: {
-    shadowOffset: { width: 0, height: 16 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
-    shadowRadius: 24,
-    elevation: 12,
+    shadowRadius: 16,
+    elevation: 8,
   },
 };
 
@@ -307,79 +576,118 @@ export const Animation = {
   slow: 500,
   spring: {
     damping: 15,
-    stiffness: 100,
+    stiffness: 300,
   },
 };
-
-export const Layout = {
-  headerHeight: 120,
-  tabBarHeight: 80,
-  bottomSheetHandleHeight: 24,
-  minTouchTarget: 44,
-};
-
-export const GroupColors = [
-  '#6366F1', '#EC4899', '#10B981', '#F59E0B',
-  '#8B5CF6', '#06B6D4', '#EF4444', '#84CC16',
-  '#F97316', '#3B82F6', '#6D28D9', '#059669',
-];
 
 export const ThemeMetadata = {
   default: {
     name: 'Default',
-    description: 'Classic indigo and pink focus theme',
-    lightKey: 'light' as keyof typeof Colors,
-    darkKey: 'dark' as keyof typeof Colors,
-    preview: '#6366F1',
+    description: 'Clean and modern',
+    mood: 'Balanced',
+    icon: 'palette',
+    gradient: ['#6366F1', '#EC4899'],
   },
-  monochrome: {
-    name: 'Monochrome',
-    description: 'Clean black and white minimal theme',
-    lightKey: 'monochrome' as keyof typeof Colors,
-    darkKey: 'monochromeInverted' as keyof typeof Colors,
-    preview: '#1F2937',
+  focus: {
+    name: 'Focus',
+    description: 'Designed for deep concentration',
+    mood: 'Concentrated',
+    icon: 'psychology',
+    gradient: ['#3B82F6', '#06B6D4'],
   },
-  ocean: {
-    name: 'Ocean',
-    description: 'Calming blues inspired by the sea',
-    lightKey: 'ocean' as keyof typeof Colors,
-    darkKey: 'oceanDark' as keyof typeof Colors,
-    preview: '#0EA5E9',
+  energetic: {
+    name: 'Energetic',
+    description: 'Vibrant colors to boost motivation',
+    mood: 'Motivated',
+    icon: 'bolt',
+    gradient: ['#FF6B35', '#FF9F1C'],
   },
-  forest: {
-    name: 'Forest',
-    description: 'Natural greens for peaceful focus',
-    lightKey: 'forest' as keyof typeof Colors,
-    darkKey: 'forestDark' as keyof typeof Colors,
-    preview: '#059669',
+  calm: {
+    name: 'Calm',
+    description: 'Soothing tones for relaxation',
+    mood: 'Peaceful',
+    icon: 'spa',
+    gradient: ['#22D3EE', '#67E8F9'],
   },
-  sunset: {
-    name: 'Sunset',
-    description: 'Warm oranges for energetic sessions',
-    lightKey: 'sunset' as keyof typeof Colors,
-    darkKey: 'sunsetDark' as keyof typeof Colors,
-    preview: '#EA580C',
+  creative: {
+    name: 'Creative',
+    description: 'Inspiring colors for artistic work',
+    mood: 'Inspired',
+    icon: 'brush',
+    gradient: ['#8B5CF6', '#EC4899'],
   },
-  purple: {
-    name: 'Purple',
-    description: 'Creative purples for inspiration',
-    lightKey: 'purple' as keyof typeof Colors,
-    darkKey: 'purpleDark' as keyof typeof Colors,
-    preview: '#8B5CF6',
+  nature: {
+    name: 'Nature',
+    description: 'Earth tones for natural harmony',
+    mood: 'Grounded',
+    icon: 'eco',
+    gradient: ['#059669', '#84CC16'],
+  },
+  minimal: {
+    name: 'Minimal',
+    description: 'Clean grayscale for distraction-free focus',
+    mood: 'Zen',
+    icon: 'radio_button_unchecked',
+    gradient: ['#1F2937', '#6B7280'],
+  },
+  warm: {
+    name: 'Warm',
+    description: 'Cozy colors for comfort',
+    mood: 'Cozy',
+    icon: 'local_fire_department',
+    gradient: ['#DC2626', '#F59E0B'],
   },
 };
 
-export const createTheme = (colorScheme: 'light' | 'dark', colorTheme: keyof typeof ThemeMetadata = 'default') => {
-  const themeMetadata = ThemeMetadata[colorTheme];
-  const colorKey = colorScheme === 'dark' ? themeMetadata.darkKey : themeMetadata.lightKey;
-  
+export const BorderRadiusMetadata = {
+  minimal: {
+    name: 'Minimal',
+    description: 'Sharp edges for a clean look',
+    preview: 4,
+  },
+  rounded: {
+    name: 'Rounded',
+    description: 'Balanced curves for modern feel',
+    preview: 12,
+  },
+  curved: {
+    name: 'Curved',
+    description: 'Soft curves for organic feel',
+    preview: 18,
+  },
+  pill: {
+    name: 'Pill',
+    description: 'Maximum roundness for playful look',
+    preview: 24,
+  },
+};
+
+export const createTheme = (
+  colorScheme: 'light' | 'dark', 
+  colorTheme: keyof typeof ThemeMetadata = 'default',
+  borderRadiusStyle: keyof typeof BorderRadius = 'rounded'
+) => {
+  const getColorPalette = () => {
+    if (colorTheme === 'default') {
+      return colorScheme === 'dark' ? Colors.dark : Colors.light;
+    }
+    
+    const themeKey = colorScheme === 'dark' ? `${colorTheme}Dark` : colorTheme;
+    return Colors[themeKey as keyof typeof Colors] || Colors[colorTheme as keyof typeof Colors] || Colors.light;
+  };
+
+  const colors = getColorPalette();
+  const borderRadius = BorderRadius[borderRadiusStyle];
+
   return {
-    colors: Colors[colorKey],
+    colors,
     typography: Typography,
     spacing: Spacing,
-    borderRadius: BorderRadius,
-    shadows: Shadows,
+    borderRadius,
+    shadows: Shadow,
     animation: Animation,
-    layout: Layout,
+    isDark: colorScheme === 'dark',
+    colorTheme,
+    borderRadiusStyle,
   };
 }; 
