@@ -15,6 +15,7 @@ import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { InputModal } from '../components/common/InputModal';
+import { FolderEditModal } from '../components/common/FolderEditModal';
 import { HabitCreationModal } from '../components/common/HabitCreationModal';
 import { GroupCard } from '../components/groups/GroupCard';
 import { SessionDetailModal } from '../components/timer/SessionDetailModal';
@@ -84,14 +85,15 @@ export const HomeScreen: React.FC = () => {
     setEditingFolder(group);
   }, []);
 
-  const handleFolderCreate = useCallback(async (name: string) => {
-    await createGroup(name, currentFolderId);
+  const handleFolderCreate = useCallback(async (name: string, color: string) => {
+    const group = await createGroup(name, currentFolderId);
+    await updateGroup(group.id, { color });
     setShowFolderModal(false);
-  }, [createGroup, currentFolderId]);
+  }, [createGroup, updateGroup, currentFolderId]);
 
-  const handleFolderEdit = useCallback(async (name: string) => {
+  const handleFolderEdit = useCallback(async (name: string, color: string) => {
     if (editingFolder) {
-      await updateGroup(editingFolder.id, { name });
+      await updateGroup(editingFolder.id, { name, color });
       setEditingFolder(null);
     }
   }, [updateGroup, editingFolder]);
@@ -381,39 +383,21 @@ export const HomeScreen: React.FC = () => {
         />
       )}
 
-      {/* Create Folder Modal */}
-      <InputModal
-        isVisible={showFolderModal}
-        title="Create Folder"
-        subtitle="Organize your habits into folders for better management"
-        placeholder="Enter folder name..."
-        confirmText="Create Folder"
-        icon="create-new-folder"
-        onConfirm={handleFolderCreate}
-        onCancel={() => setShowFolderModal(false)}
-        validation={(value) => {
-          if (value.length < 2) return 'Folder name must be at least 2 characters';
-          const existingNames = Object.values(state.groups)
-            .filter(g => g.parentId === currentFolderId)
-            .map(g => g.name.toLowerCase());
-          if (existingNames.includes(value.toLowerCase())) {
-            return 'A folder with this name already exists';
-          }
-          return null;
+      {/* Create/Edit Folder Modal */}
+      <FolderEditModal
+        isVisible={showFolderModal || !!editingFolder}
+        onClose={() => {
+          setShowFolderModal(false);
+          setEditingFolder(null);
         }}
-      />
-
-      {/* Edit Folder Modal */}
-      <InputModal
-        isVisible={!!editingFolder}
-        title="Edit Folder"
-        subtitle="Change the folder name"
-        placeholder="Enter new folder name..."
-        initialValue={editingFolder?.name || ''}
-        confirmText="Update"
-        icon="edit"
-        onConfirm={handleFolderEdit}
-        onCancel={() => setEditingFolder(null)}
+        folder={editingFolder}
+        onSave={(name, color) => {
+          if (editingFolder) {
+            handleFolderEdit(name, color);
+          } else {
+            handleFolderCreate(name, color);
+          }
+        }}
         validation={(value) => {
           if (value.length < 2) return 'Folder name must be at least 2 characters';
           const existingNames = Object.values(state.groups)

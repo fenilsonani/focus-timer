@@ -34,10 +34,23 @@ export interface Note {
   updatedAt: Date;
 }
 
+export interface HabitReminder {
+  id: string;
+  habitTitle: string;
+  groupId?: string;
+  time: string; // HH:mm format
+  days: number[]; // 0-6 (Sunday-Saturday)
+  isEnabled: boolean;
+  notificationId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface AppState {
   groups: Record<string, Group>;
   sessions: Record<string, FocusSession>;
   notes: Record<string, Note>;
+  reminders: Record<string, HabitReminder>;
   currentSession?: string;
   settings: AppSettings;
 }

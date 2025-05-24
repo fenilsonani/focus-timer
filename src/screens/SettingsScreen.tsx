@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { TimePickerModal } from '../components/common/TimePickerModal';
+import { notificationService } from '../services/notificationService';
 import { formatDuration } from '../utils';
 
 export const SettingsScreen: React.FC = () => {
@@ -23,6 +24,7 @@ export const SettingsScreen: React.FC = () => {
   const { state, updateSettings, exportData, importData, clearAllData } = useAppState();
   const [showTimeSettings, setShowTimeSettings] = useState(false);
   const [showCustomTimePicker, setShowCustomTimePicker] = useState(false);
+  const [notificationPermissions, setNotificationPermissions] = useState({ granted: false, canAskAgain: true });
   
   const settings = state.settings;
 
@@ -63,6 +65,20 @@ export const SettingsScreen: React.FC = () => {
       ]
     );
   }, [clearAllData]);
+
+  const handleRequestNotificationPermissions = useCallback(async () => {
+    const permissions = await notificationService.requestPermissions();
+    setNotificationPermissions(permissions);
+  }, []);
+
+  // Check notification permissions on mount
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const permissions = await notificationService.getPermissions();
+      setNotificationPermissions(permissions);
+    };
+    checkPermissions();
+  }, []);
 
   const SettingRow: React.FC<{
     title: string;
@@ -255,6 +271,21 @@ export const SettingsScreen: React.FC = () => {
             switchValue={settings.soundEnabled}
             onSwitchChange={(value) => handleUpdateSetting('soundEnabled', value)}
           />
+
+          <SettingRow
+            title="Push Notifications"
+            subtitle={notificationPermissions.granted 
+              ? "Live timer updates and session alerts" 
+              : "Allow notifications for better experience"
+            }
+            icon="notifications"
+            switchValue={notificationPermissions.granted}
+            onSwitchChange={notificationPermissions.granted ? undefined : handleRequestNotificationPermissions}
+            onPress={!notificationPermissions.granted && notificationPermissions.canAskAgain 
+              ? handleRequestNotificationPermissions 
+              : undefined
+            }
+          />
         </Card>
 
         {/* Appearance */}
@@ -343,6 +374,18 @@ export const SettingsScreen: React.FC = () => {
               Alert.alert('Support', 'Support contact information would be shown here');
             }}
           />
+
+          {/* Development notification test */}
+          {__DEV__ && (
+            <SettingRow
+              title="Test Notification"
+              subtitle="Send a test notification (Dev only)"
+              icon="notification-important"
+              onPress={() => {
+                notificationService.sendHabitReminderNotification('Test Habit');
+              }}
+            />
+          )}
         </Card>
 
         {/* Statistics Summary */}

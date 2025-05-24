@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useContext, createContext, ReactNode } from 'react';
-import { AppState, Group, FocusSession, Note, AppSettings } from '../types';
+import { AppState, Group, FocusSession, Note, HabitReminder, AppSettings } from '../types';
 import { storageService } from '../services/storage';
 import { generateId, getRandomColor } from '../utils';
 
@@ -24,12 +24,19 @@ interface AppStateContextType {
   setCurrentSession: (sessionId: string | undefined) => void;
   
   // Note operations
-  createNote: (title: string, content: string, groupId?: string, sessionId?: string) => Promise<Note>;
+  createNote: (title: string, content: string, groupId?: string, sessionId?: string, tags?: string[]) => Promise<Note>;
   updateNote: (noteId: string, updates: Partial<Note>) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   getNote: (noteId: string) => Note | undefined;
   getNotesForGroup: (groupId: string) => Note[];
   getNotesForSession: (sessionId: string) => Note[];
+  
+  // Reminder operations
+  createReminder: (reminder: Omit<HabitReminder, 'id' | 'createdAt' | 'updatedAt' | 'isEnabled'>) => Promise<HabitReminder>;
+  updateReminder: (reminderId: string, updates: Partial<HabitReminder>) => Promise<void>;
+  deleteReminder: (reminderId: string) => Promise<void>;
+  getReminder: (reminderId: string) => HabitReminder | undefined;
+  getRemindersForGroup: (groupId: string) => HabitReminder[];
   
   // Settings operations
   updateSettings: (updates: Partial<AppSettings>) => Promise<void>;
@@ -56,6 +63,7 @@ const defaultState: AppState = {
   groups: {},
   sessions: {},
   notes: {},
+  reminders: {},
   currentSession: undefined,
   settings: defaultSettings,
 };
@@ -284,14 +292,14 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   }, [updateState]);
 
   // Note operations
-  const createNote = useCallback(async (title: string, content: string, groupId?: string, sessionId?: string): Promise<Note> => {
+  const createNote = useCallback(async (title: string, content: string, groupId?: string, sessionId?: string, tags?: string[]): Promise<Note> => {
     const note: Note = {
       id: generateId(),
       title,
       content,
       groupId,
       sessionId,
-      tags: [],
+      tags: tags || [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -355,6 +363,72 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const getNotesForSession = useCallback((sessionId: string) => {
     return Object.values(state.notes).filter(note => note.sessionId === sessionId);
   }, [state.notes]);
+
+  // Reminder operations
+  const createReminder = useCallback(async (reminderData: Omit<HabitReminder, 'id' | 'createdAt' | 'updatedAt' | 'isEnabled'>): Promise<HabitReminder> => {
+    const reminder: HabitReminder = {
+      id: generateId(),
+      ...reminderData,
+      isEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    updateState(prevState => ({
+      ...prevState,
+      reminders: {
+        ...prevState.reminders,
+        [reminder.id]: reminder,
+      },
+    }));
+
+    await storageService.saveReminder(reminder);
+    return reminder;
+  }, [updateState]);
+
+  const updateReminder = useCallback(async (reminderId: string, updates: Partial<HabitReminder>) => {
+    updateState(prevState => {
+      const reminder = prevState.reminders[reminderId];
+      if (!reminder) return prevState;
+
+      const updatedReminder = {
+        ...reminder,
+        ...updates,
+        updatedAt: new Date(),
+      };
+
+      return {
+        ...prevState,
+        reminders: {
+          ...prevState.reminders,
+          [reminderId]: updatedReminder,
+        },
+      };
+    });
+
+    const updatedReminder = state.reminders[reminderId];
+    if (updatedReminder) {
+      await storageService.saveReminder(updatedReminder);
+    }
+  }, [updateState, state.reminders]);
+
+  const deleteReminder = useCallback(async (reminderId: string) => {
+    updateState(prevState => {
+      const newState = { ...prevState };
+      delete newState.reminders[reminderId];
+      return newState;
+    });
+
+    await storageService.deleteReminder(reminderId);
+  }, [updateState]);
+
+  const getReminder = useCallback((reminderId: string) => {
+    return state.reminders[reminderId];
+  }, [state.reminders]);
+
+  const getRemindersForGroup = useCallback((groupId: string) => {
+    return Object.values(state.reminders).filter(reminder => reminder.groupId === groupId);
+  }, [state.reminders]);
 
   // Settings operations
   const updateSettings = useCallback(async (updates: Partial<AppSettings>) => {
@@ -420,6 +494,12 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     getNote,
     getNotesForGroup,
     getNotesForSession,
+    
+    createReminder,
+    updateReminder,
+    deleteReminder,
+    getReminder,
+    getRemindersForGroup,
     
     updateSettings,
     

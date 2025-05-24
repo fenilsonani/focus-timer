@@ -9,12 +9,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 
 interface BottomNavigationProps {
-  activeTab: 'home' | 'analytics' | 'settings';
-  onTabPress: (tab: 'home' | 'analytics' | 'settings') => void;
+  activeTab: 'home' | 'analytics' | 'notes' | 'reminders' | 'settings';
+  onTabPress: (tab: 'home' | 'analytics' | 'notes' | 'reminders' | 'settings') => void;
 }
 
 interface TabItem {
-  key: 'home' | 'analytics' | 'settings';
+  key: 'home' | 'analytics' | 'notes' | 'reminders' | 'settings';
   label: string;
   icon: string;
 }
@@ -22,6 +22,8 @@ interface TabItem {
 const tabs: TabItem[] = [
   { key: 'home', label: 'Home', icon: 'home' },
   { key: 'analytics', label: 'Analytics', icon: 'bar-chart' },
+  { key: 'notes', label: 'Notes', icon: 'note' },
+  { key: 'reminders', label: 'Reminders', icon: 'schedule' },
   { key: 'settings', label: 'Settings', icon: 'settings' },
 ];
 

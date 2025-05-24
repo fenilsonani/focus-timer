@@ -1,11 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppState, Group, FocusSession, Note, AppSettings } from '../types';
+import { AppState, Group, FocusSession, Note, HabitReminder, AppSettings } from '../types';
 
 const STORAGE_KEYS = {
   APP_STATE: '@focus_timer_app_state',
   GROUPS: '@focus_timer_groups',
   SESSIONS: '@focus_timer_sessions',
   NOTES: '@focus_timer_notes',
+  REMINDERS: '@focus_timer_reminders',
   SETTINGS: '@focus_timer_settings',
 } as const;
 
@@ -111,6 +112,27 @@ class StorageService {
     await this.saveNotes(notes);
   }
 
+  // Reminders Management
+  async saveReminders(reminders: Record<string, HabitReminder>): Promise<void> {
+    await this.setItem(STORAGE_KEYS.REMINDERS, reminders);
+  }
+
+  async loadReminders(): Promise<Record<string, HabitReminder> | null> {
+    return await this.getItem<Record<string, HabitReminder>>(STORAGE_KEYS.REMINDERS);
+  }
+
+  async saveReminder(reminder: HabitReminder): Promise<void> {
+    const reminders = await this.loadReminders() || {};
+    reminders[reminder.id] = reminder;
+    await this.saveReminders(reminders);
+  }
+
+  async deleteReminder(reminderId: string): Promise<void> {
+    const reminders = await this.loadReminders() || {};
+    delete reminders[reminderId];
+    await this.saveReminders(reminders);
+  }
+
   // Settings Management
   async saveSettings(settings: AppSettings): Promise<void> {
     await this.setItem(STORAGE_KEYS.SETTINGS, settings);
@@ -127,16 +149,18 @@ class StorageService {
       this.removeItem(STORAGE_KEYS.GROUPS),
       this.removeItem(STORAGE_KEYS.SESSIONS),
       this.removeItem(STORAGE_KEYS.NOTES),
+      this.removeItem(STORAGE_KEYS.REMINDERS),
       this.removeItem(STORAGE_KEYS.SETTINGS),
     ]);
   }
 
   async exportData(): Promise<string> {
-    const [appState, groups, sessions, notes, settings] = await Promise.all([
+    const [appState, groups, sessions, notes, reminders, settings] = await Promise.all([
       this.loadAppState(),
       this.loadGroups(),
       this.loadSessions(),
       this.loadNotes(),
+      this.loadReminders(),
       this.loadSettings(),
     ]);
 
@@ -145,6 +169,7 @@ class StorageService {
       groups,
       sessions,
       notes,
+      reminders,
       settings,
       exportedAt: new Date().toISOString(),
     };
@@ -160,6 +185,7 @@ class StorageService {
       if (data.groups) await this.saveGroups(data.groups);
       if (data.sessions) await this.saveSessions(data.sessions);
       if (data.notes) await this.saveNotes(data.notes);
+      if (data.reminders) await this.saveReminders(data.reminders);
       if (data.settings) await this.saveSettings(data.settings);
     } catch (error) {
       console.error('Error importing data:', error);

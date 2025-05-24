@@ -13,12 +13,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useTheme } from '../../hooks/useTheme';
 import { useAppState } from '../../hooks/useAppState';
-import { useTimer } from '../../hooks/useTimer';
+import { useTimerWithNotifications } from '../../hooks/useTimerWithNotifications';
 import { TimerDisplay } from './TimerDisplay';
 import { TimerControls } from './TimerControls';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { TimePickerModal } from '../common/TimePickerModal';
+import { NotesModal } from '../common/NotesModal';
+import { ReminderModal } from '../common/ReminderModal';
 import { FocusSession } from '../../types';
 import { formatDuration, formatRelativeTime } from '../../utils';
 
@@ -36,6 +38,8 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
   const { theme, isDark } = useTheme();
   const { state, updateSession, getNotesForSession } = useAppState();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
   const [sessionStats, setSessionStats] = useState({
     totalSessions: 0,
     totalTime: 0,
@@ -109,10 +113,13 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
     });
   }, [session.id, session.duration, updateSession]);
 
-  const timer = useTimer({
+  const timer = useTimerWithNotifications({
     initialDuration: session.duration,
+    sessionId: session.id,
+    sessionTitle: session.title,
     enableHaptics: state.settings.hapticFeedback,
     enableBackground: true,
+    enableNotifications: state.settings.soundEnabled,
     onComplete: handleTimerComplete,
     onTick: handleTimerTick,
   });
@@ -284,6 +291,29 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
               </View>
             </Card>
           )}
+
+          {/* Quick Actions */}
+          <View style={styles.quickActionsSection}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
+              Quick Actions
+            </Text>
+            <View style={styles.quickActionsGrid}>
+              <Button
+                title="📝 Notes"
+                onPress={() => setShowNotesModal(true)}
+                variant="outline"
+                size="small"
+                style={styles.quickActionButton}
+              />
+              <Button
+                title="⏰ Reminders"
+                onPress={() => setShowReminderModal(true)}
+                variant="outline"
+                size="small"
+                style={styles.quickActionButton}
+              />
+            </View>
+          </View>
         </ScrollView>
 
         {/* Custom Time Picker Modal */}
@@ -299,6 +329,22 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
             setShowTimePicker(false);
           }}
           onCancel={() => setShowTimePicker(false)}
+        />
+
+        {/* Notes Modal */}
+        <NotesModal
+          isVisible={showNotesModal}
+          onClose={() => setShowNotesModal(false)}
+          sessionId={session.id}
+          title={`${session.title} Notes`}
+        />
+
+        {/* Reminder Modal */}
+        <ReminderModal
+          isVisible={showReminderModal}
+          onClose={() => setShowReminderModal(false)}
+          habitTitle={session.title}
+          groupId={session.groupId}
         />
       </SafeAreaView>
     </Modal>
@@ -403,6 +449,16 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 16,
     fontWeight: '500',
+    flex: 1,
+  },
+  quickActionsSection: {
+    marginBottom: 24,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quickActionButton: {
     flex: 1,
   },
 }); 
