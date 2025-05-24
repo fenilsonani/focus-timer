@@ -35,9 +35,21 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
   const handleMainAction = () => {
     if (!isRunning) {
       onStart();
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } else {
       onPause();
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+  };
+
+  const handleStop = () => {
+    onStop();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  };
+
+  const handleReset = () => {
+    onReset();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const getMainButtonTitle = () => {
@@ -60,136 +72,85 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
   return (
     <View style={[styles.container, style]}>
       {/* Main Action Button */}
-      <View style={styles.mainButtonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.mainButton,
-            {
-              backgroundColor: getMainButtonColor(),
-              shadowColor: getMainButtonColor(),
-              ...theme.shadows.lg,
-            }
-          ]}
-          onPress={handleMainAction}
-          activeOpacity={0.8}
-        >
-          <MaterialIcons
-            name={getMainButtonIcon() as any}
-            size={36}
-            color="#FFFFFF"
-          />
-        </TouchableOpacity>
-        
-        {/* Main button label */}
-        <Text style={[styles.mainButtonLabel, { color: theme.colors.onSurfaceVariant }]}>
-          {getMainButtonTitle()}
-        </Text>
-      </View>
+      <TouchableOpacity
+        style={[
+          styles.mainButton,
+          {
+            backgroundColor: getMainButtonColor(),
+            shadowColor: getMainButtonColor(),
+            ...theme.shadows.lg,
+          }
+        ]}
+        onPress={handleMainAction}
+        activeOpacity={0.8}
+      >
+        <MaterialIcons
+          name={getMainButtonIcon() as any}
+          size={32}
+          color="#FFFFFF"
+        />
+      </TouchableOpacity>
+      
+      {/* Main button label */}
+      <Text style={[styles.mainButtonLabel, { color: theme.colors.onSurface }]}>
+        {getMainButtonTitle()}
+      </Text>
 
-      {/* Secondary Controls */}
-      <View style={styles.secondaryControls}>
-        {/* Stop Button */}
-        {isRunning && (
-          <View style={styles.secondaryButtonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.secondaryButton,
-                {
-                  backgroundColor: theme.colors.surface,
-                  borderColor: theme.colors.error,
-                  ...theme.shadows.sm,
-                }
-              ]}
-              onPress={onStop}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons
-                name="stop"
-                size={24}
-                color={theme.colors.error}
-              />
-            </TouchableOpacity>
-            <Text style={[styles.secondaryButtonLabel, { color: theme.colors.onSurfaceVariant }]}>
-              Stop
-            </Text>
-          </View>
-        )}
-
-        {/* Reset Button */}
+      {/* Action Row - All controls on same row */}
+      <View style={styles.actionRow}>
+        {/* Reset Button - When not running */}
         {!isRunning && (
-          <View style={styles.secondaryButtonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.secondaryButton,
-                {
-                  backgroundColor: theme.colors.surface,
-                  borderColor: theme.colors.onSurfaceVariant,
-                  ...theme.shadows.sm,
-                }
-              ]}
-              onPress={onReset}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons
-                name="refresh"
-                size={24}
-                color={theme.colors.onSurfaceVariant}
-              />
-            </TouchableOpacity>
-            <Text style={[styles.secondaryButtonLabel, { color: theme.colors.onSurfaceVariant }]}>
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }
+            ]}
+            onPress={handleReset}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="refresh" size={18} color={theme.colors.onSurfaceVariant} />
+            <Text style={[styles.actionButtonText, { color: theme.colors.onSurfaceVariant }]}>
               Reset
             </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Stop Button - When running */}
+        {isRunning && (
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.error,
+              }
+            ]}
+            onPress={handleStop}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="stop" size={18} color={theme.colors.error} />
+            <Text style={[styles.actionButtonText, { color: theme.colors.error }]}>
+              Stop
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Status indicator - inline when running */}
+        {isRunning && (
+          <View style={styles.inlineStatus}>
+            <View style={[
+              styles.statusDot, 
+              { backgroundColor: isPaused ? theme.colors.warning : theme.colors.success }
+            ]} />
+            <Text style={[styles.statusText, { color: theme.colors.onSurfaceVariant }]}>
+              {isPaused ? 'Paused' : 'Active'}
+            </Text>
           </View>
         )}
       </View>
-
-      {/* Quick Time Adjustments - Only when not running */}
-      {!isRunning && (
-        <View style={styles.quickControls}>
-          <Text style={[styles.quickControlsTitle, { color: theme.colors.onSurfaceVariant }]}>
-            Adjust Time
-          </Text>
-          <View style={styles.quickControlsButtons}>
-            <Button
-              title="+1m"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-              variant="ghost"
-              size="small"
-              style={styles.quickButton}
-            />
-            <Button
-              title="+5m"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-              variant="ghost"
-              size="small"
-              style={styles.quickButton}
-            />
-            <Button
-              title="+10m"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-              variant="ghost"
-              size="small"
-              style={styles.quickButton}
-            />
-          </View>
-        </View>
-      )}
-
-      {/* Session Status Indicator */}
-      {isRunning && (
-        <View style={styles.statusIndicator}>
-          <View style={[styles.statusDot, { backgroundColor: isPaused ? theme.colors.warning : theme.colors.success }]} />
-          <Text style={[styles.statusText, { color: theme.colors.onSurfaceVariant }]}>
-            {isPaused ? 'Paused' : 'Focus Session Active'}
-          </Text>
-        </View>
-      )}
     </View>
   );
 };
@@ -198,10 +159,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     gap: 24,
-  },
-  mainButtonContainer: {
-    alignItems: 'center',
-    gap: 12,
   },
   mainButton: {
     width: 88,
@@ -215,49 +172,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  secondaryControls: {
+  actionRow: {
     flexDirection: 'row',
     gap: 24,
     alignItems: 'center',
   },
-  secondaryButtonContainer: {
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  secondaryButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 12,
     borderWidth: 2,
+    borderRadius: 24,
   },
-  secondaryButtonLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  quickControls: {
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 8,
-  },
-  quickControlsTitle: {
+  actionButtonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
-  quickControlsButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  quickButton: {
-    minWidth: 50,
-    paddingHorizontal: 12,
-  },
-  statusIndicator: {
+  inlineStatus: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 16,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: 'transparent',
   },
   statusDot: {
     width: 8,
@@ -265,7 +203,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   statusText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
   },
 }); 

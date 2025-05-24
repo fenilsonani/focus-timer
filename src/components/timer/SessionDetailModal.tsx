@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../hooks/useTheme';
 import { useAppState } from '../../hooks/useAppState';
 import { useTimerWithNotifications } from '../../hooks/useTimerWithNotifications';
@@ -245,75 +246,248 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
             />
           </View>
 
-          {/* Time Adjustments */}
+          {/* Simple Timer Setup - Only when not running */}
           {!timer.isRunning && (
-            <View style={styles.quickActions}>
-              <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
-                Adjust Session Time
-              </Text>
-              <View style={styles.adjustmentButtons}>
-                <Button
-                  title="-5 min"
-                  onPress={() => timer.addTime(-5 * 60)}
-                  variant="outline"
-                  size="small"
-                />
-                <Button
-                  title="+5 min"
-                  onPress={() => timer.addTime(5 * 60)}
-                  variant="outline"
-                  size="small"
-                />
-                <Button
-                  title="+10 min"
-                  onPress={() => timer.addTime(10 * 60)}
-                  variant="outline"
-                  size="small"
-                />
-                <Button
-                  title="Custom"
-                  onPress={() => setShowTimePicker(true)}
-                  variant="primary"
-                  size="small"
-                />
+            <Card variant="outlined" style={styles.timerSetupCard}>
+              <View style={styles.setupHeader}>
+                <MaterialIcons name="timer" size={24} color={theme.colors.primary} />
+                <Text style={[styles.setupTitle, { color: theme.colors.onSurface }]}>
+                  Timer Setup
+                </Text>
               </View>
-            </View>
+
+                             {/* Current Time Display - Pretty version */}
+               <View style={[styles.currentTimeDisplay, { backgroundColor: theme.colors.primary + '10', borderColor: theme.colors.primary + '30' }]}>
+                 <View style={styles.timeDisplayHeader}>
+                   <MaterialIcons name="timer" size={16} color={theme.colors.primary} />
+                   <Text style={[styles.currentTimeLabel, { color: theme.colors.onSurfaceVariant }]}>
+                     Session Time
+                   </Text>
+                 </View>
+                 <Text style={[styles.currentTimeValue, { color: theme.colors.primary }]}>
+                   {formatDuration(timer.timeRemaining)}
+                 </Text>
+                 <View style={[styles.timeBadge, { backgroundColor: theme.colors.primary }]}>
+                   <Text style={[styles.timeBadgeText, { color: '#FFFFFF' }]}>
+                     {timer.timeRemaining >= 1800 ? 'Deep Work' : timer.timeRemaining >= 900 ? 'Focus' : 'Break'}
+                   </Text>
+                 </View>
+               </View>
+
+              {/* Quick Presets */}
+              <View style={styles.presetsSection}>
+                <Text style={[styles.presetLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Quick Presets
+                </Text>
+                <View style={styles.presetGrid}>
+                  {/* Focus Presets */}
+                  <TouchableOpacity
+                    style={[styles.presetButton, { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary }]}
+                    onPress={() => {
+                      timer.setDuration(25 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.presetIcon, { backgroundColor: theme.colors.primary }]}>
+                      <MaterialIcons name="psychology" size={16} color="#FFFFFF" />
+                    </View>
+                    <Text style={[styles.presetButtonTitle, { color: theme.colors.primary }]}>25m</Text>
+                    <Text style={[styles.presetButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>Focus</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.presetButton, { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary }]}
+                    onPress={() => {
+                      timer.setDuration(50 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.presetIcon, { backgroundColor: theme.colors.primary }]}>
+                      <MaterialIcons name="psychology" size={16} color="#FFFFFF" />
+                    </View>
+                    <Text style={[styles.presetButtonTitle, { color: theme.colors.primary }]}>50m</Text>
+                    <Text style={[styles.presetButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>Deep Work</Text>
+                  </TouchableOpacity>
+
+                  {/* Break Presets */}
+                  <TouchableOpacity
+                    style={[styles.presetButton, { backgroundColor: theme.colors.secondary + '15', borderColor: theme.colors.secondary }]}
+                    onPress={() => {
+                      timer.setDuration(5 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.presetIcon, { backgroundColor: theme.colors.secondary }]}>
+                      <MaterialIcons name="coffee" size={16} color="#FFFFFF" />
+                    </View>
+                    <Text style={[styles.presetButtonTitle, { color: theme.colors.secondary }]}>5m</Text>
+                    <Text style={[styles.presetButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>Break</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.presetButton, { backgroundColor: theme.colors.secondary + '15', borderColor: theme.colors.secondary }]}
+                    onPress={() => {
+                      timer.setDuration(15 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.presetIcon, { backgroundColor: theme.colors.secondary }]}>
+                      <MaterialIcons name="coffee" size={16} color="#FFFFFF" />
+                    </View>
+                    <Text style={[styles.presetButtonTitle, { color: theme.colors.secondary }]}>15m</Text>
+                    <Text style={[styles.presetButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>Break</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Time Adjustments */}
+              <View style={styles.adjustmentSection}>
+                <Text style={[styles.adjustmentLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Fine Tune Time
+                </Text>
+                
+                {/* Quick Adjustment Buttons - 4 buttons in a row */}
+                <View style={styles.quickAdjustRow}>
+                  <TouchableOpacity
+                    style={[styles.adjustButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+                    onPress={() => {
+                      timer.addTime(-5 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons name="remove" size={18} color={theme.colors.onSurfaceVariant} />
+                    <Text style={[styles.adjustButtonText, { color: theme.colors.onSurfaceVariant }]}>5m</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.adjustButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+                    onPress={() => {
+                      timer.addTime(-1 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons name="remove" size={18} color={theme.colors.onSurfaceVariant} />
+                    <Text style={[styles.adjustButtonText, { color: theme.colors.onSurfaceVariant }]}>1m</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.adjustButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+                    onPress={() => {
+                      timer.addTime(1 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons name="add" size={18} color={theme.colors.primary} />
+                    <Text style={[styles.adjustButtonText, { color: theme.colors.primary }]}>1m</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.adjustButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+                    onPress={() => {
+                      timer.addTime(5 * 60);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons name="add" size={18} color={theme.colors.primary} />
+                    <Text style={[styles.adjustButtonText, { color: theme.colors.primary }]}>5m</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Custom Time Button - Separate row for breathing room */}
+                <TouchableOpacity
+                  style={[styles.customTimeButton, { backgroundColor: theme.colors.primary }]}
+                  onPress={() => {
+                    setShowTimePicker(true);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <MaterialIcons name="edit" size={20} color="#FFFFFF" />
+                  <Text style={[styles.customTimeButtonText, { color: '#FFFFFF' }]}>Set Custom Time</Text>
+                </TouchableOpacity>
+              </View>
+            </Card>
           )}
 
-          {/* Current Session Status */}
+          {/* Session Status - When running */}
           {timer.isRunning && (
             <Card variant="filled" style={styles.statusCard}>
               <View style={styles.statusContent}>
-                <MaterialIcons name="trending-up" size={24} color={theme.colors.success} />
-                <Text style={[styles.statusText, { color: theme.colors.onSurface }]}>
-                  Keep going! You're building a great habit.
-                </Text>
+                <View style={styles.statusIcon}>
+                  <MaterialIcons 
+                    name={timer.isPaused ? "pause-circle" : "play-circle"} 
+                    size={32} 
+                    color={timer.isPaused ? theme.colors.warning : theme.colors.success} 
+                  />
+                </View>
+                <View style={styles.statusInfo}>
+                  <Text style={[styles.statusTitle, { color: theme.colors.onSurface }]}>
+                    {timer.isPaused ? 'Session Paused' : 'Focus Session Active'}
+                  </Text>
+                  <Text style={[styles.statusSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+                    {timer.isPaused 
+                      ? 'Take your time, resume when ready' 
+                      : `Keep going! ${formatDuration(timer.timeRemaining)} remaining`
+                    }
+                  </Text>
+                </View>
               </View>
             </Card>
           )}
 
           {/* Quick Actions */}
-          <View style={styles.quickActionsSection}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
-              Quick Actions
-            </Text>
-            <View style={styles.quickActionsGrid}>
-              <Button
-                title="📝 Notes"
-                onPress={() => setShowNotesModal(true)}
-                variant="outline"
-                size="small"
-                style={styles.quickActionButton}
-              />
-              <Button
-                title="⏰ Reminders"
-                onPress={() => setShowReminderModal(true)}
-                variant="outline"
-                size="small"
-                style={styles.quickActionButton}
-              />
+          <Card variant="outlined" style={styles.quickActionsCard}>
+            <View style={styles.quickActionsHeader}>
+              <MaterialIcons name="flash-on" size={20} color={theme.colors.secondary} />
+              <Text style={[styles.quickActionsTitle, { color: theme.colors.onSurface }]}>
+                Quick Actions
+              </Text>
             </View>
-          </View>
+            
+            <View style={styles.quickActionsGrid}>
+              <TouchableOpacity
+                style={[styles.quickActionItem, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+                onPress={() => {
+                  setShowNotesModal(true);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: theme.colors.primary }]}>
+                  <MaterialIcons name="edit-note" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={[styles.quickActionLabel, { color: theme.colors.onSurface }]}>Notes</Text>
+                <Text style={[styles.quickActionSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+                  Add session notes
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.quickActionItem, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+                onPress={() => {
+                  setShowReminderModal(true);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: theme.colors.secondary }]}>
+                  <MaterialIcons name="notifications" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={[styles.quickActionLabel, { color: theme.colors.onSurface }]}>Reminders</Text>
+                <Text style={[styles.quickActionSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+                  Set habit reminders
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Card>
         </ScrollView>
 
         {/* Custom Time Picker Modal */}
@@ -437,10 +611,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
   },
-  statusCard: {
-    marginBottom: 24,
-    padding: 20,
-  },
   statusContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -451,14 +621,194 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
-  quickActionsSection: {
+
+  // Quick Actions Card Styles
+  quickActionsCard: {
     marginBottom: 24,
+    padding: 20,
+  },
+  quickActionsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  quickActionsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
   },
   quickActionsGrid: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
   },
-  quickActionButton: {
+  quickActionItem: {
     flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 8,
+  },
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  quickActionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  quickActionSubtitle: {
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  timerSetupCard: {
+    marginBottom: 24,
+    padding: 20,
+  },
+  setupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 20,
+  },
+  setupTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  currentTimeDisplay: {
+    marginBottom: 20,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    alignItems: 'center',
+  },
+  timeDisplayHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  currentTimeLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  currentTimeValue: {
+    fontSize: 36,
+    fontWeight: '300',
+    letterSpacing: -1,
+    marginBottom: 8,
+  },
+  timeBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  timeBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  presetsSection: {
+    marginBottom: 20,
+  },
+  presetLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  presetGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  presetButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  presetIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  presetButtonTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  presetButtonSubtitle: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  adjustmentSection: {
+    marginBottom: 20,
+  },
+  adjustmentLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  quickAdjustRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+  },
+  adjustButton: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 6,
+    minHeight: 48,
+  },
+  adjustButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  customTimeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 16,
+    borderRadius: 12,
+    minHeight: 48,
+  },
+  customTimeButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  statusCard: {
+    marginBottom: 24,
+    padding: 20,
+  },
+  statusIcon: {
+    marginBottom: 12,
+  },
+  statusInfo: {
+    flex: 1,
+  },
+  statusTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  statusSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 }); 

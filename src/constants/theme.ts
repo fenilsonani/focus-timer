@@ -662,6 +662,15 @@ export const BorderRadiusMetadata = {
   },
 };
 
+// Group colors for random assignment
+export const GroupColors = [
+  '#6366F1', '#EC4899', '#10B981', '#F59E0B',
+  '#8B5CF6', '#06B6D4', '#EF4444', '#84CC16',
+  '#F97316', '#3B82F6', '#6D28D9', '#059669',
+  '#DC2626', '#7C3AED', '#0EA5E9', '#65A30D',
+  '#B91C1C', '#9333EA', '#0284C7', '#16A34A',
+];
+
 export const createTheme = (
   colorScheme: 'light' | 'dark', 
   colorTheme: keyof typeof ThemeMetadata = 'default',
