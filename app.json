@@ -15,7 +15,9 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["background-processing"]
+        "UIBackgroundModes": [
+          "background-processing"
+        ]
       }
     },
     "android": {
@@ -28,10 +30,16 @@
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
         "android.permission.WAKE_LOCK"
-      ]
+      ],
+      "package": "com.fenilsonani.focustimer"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6142b5b4-c2d8-463b-95ce-d4f230e8eba0"
+      }
     }
   }
 }
