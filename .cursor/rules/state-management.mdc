@@ -1,0 +1,180 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# State Management & Hooks
+
+## Architecture Overview
+The app uses React Context with custom hooks for state management, avoiding external state libraries.
+
+## Core State Providers
+
+### App State Provider ([src/hooks/useAppState.tsx](mdc:src/hooks/useAppState.tsx))
+Main application state management:
+```typescript
+interface AppStateContextType {
+  state: AppState;
+  dispatch: React.Dispatch<AppStateAction>;
+  
+  // Session management
+  createSession: (sessionData: Partial<FocusSession>) => string;
+  updateSession: (id: string, updates: Partial<FocusSession>) => void;
+  deleteSession: (id: string) => void;
+  
+  // Group management
+  createGroup: (groupData: Partial<Group>) => string;
+  updateGroup: (id: string, updates: Partial<Group>) => void;
+  deleteGroup: (id: string) => void;
+  
+  // Notes and reminders
+  createNote: (noteData: Partial<Note>) => string;
+  createReminder: (reminderData: Partial<HabitReminder>) => string;
+  
+  // Navigation helpers
+  getCurrentPath: () => NavigationItem[];
+  navigateToGroup: (groupId: string) => void;
+}
+```
+
+### Theme Provider ([src/hooks/useTheme.tsx](mdc:src/hooks/useTheme.tsx))
+Theme and styling management:
+```typescript
+interface ThemeContextType {
+  theme: Theme;
+  isDark: boolean;
+  toggleTheme: () => void;
+  setTheme: (theme: 'light' | 'dark' | 'auto') => void;
+}
+```
+
+## Custom Hooks
+
+### Timer Hooks
+- [useTimer.ts](mdc:src/hooks/useTimer.ts) - Basic timer functionality
+- [useTimerWithNotifications.ts](mdc:src/hooks/useTimerWithNotifications.ts) - Timer with background notifications
+
+```typescript
+// Timer hook pattern
+interface UseTimerReturn {
+  timeRemaining: number;
+  isRunning: boolean;
+  isPaused: boolean;
+  start: () => void;
+  pause: () => void;
+  stop: () => void;
+  reset: () => void;
+}
+
+const useTimer = (initialDuration: number): UseTimerReturn => {
+  // Implementation with useReducer for complex state
+}
+```
+
+## State Patterns
+
+### Reducer Pattern
+Complex state updates use useReducer:
+```typescript
+type AppStateAction = 
+  | { type: 'CREATE_SESSION'; payload: FocusSession }
+  | { type: 'UPDATE_SESSION'; payload: { id: string; updates: Partial<FocusSession> } }
+  | { type: 'DELETE_SESSION'; payload: string }
+  | { type: 'SET_CURRENT_SESSION'; payload: string | undefined };
+
+const appStateReducer = (state: AppState, action: AppStateAction): AppState => {
+  switch (action.type) {
+    case 'CREATE_SESSION':
+      return {
+        ...state,
+        sessions: {
+          ...state.sessions,
+          [action.payload.id]: action.payload
+        }
+      };
+    // Other cases...
+  }
+};
+```
+
+### Persistence Pattern
+State is automatically persisted to AsyncStorage:
+```typescript
+// Auto-save pattern
+useEffect(() => {
+  const saveState = async () => {
+    await storage.saveAppState(state);
+  };
+  
+  const timeoutId = setTimeout(saveState, 1000); // Debounced save
+  return () => clearTimeout(timeoutId);
+}, [state]);
+```
+
+### Optimistic Updates
+UI updates immediately with rollback on failure:
+```typescript
+const updateSessionOptimistic = async (id: string, updates: Partial<FocusSession>) => {
+  // Immediately update UI
+  dispatch({ type: 'UPDATE_SESSION', payload: { id, updates } });
+  
+  try {
+    await storage.updateSession(id, updates);
+  } catch (error) {
+    // Rollback on failure
+    dispatch({ type: 'REVERT_SESSION', payload: id });
+    showError('Failed to update session');
+  }
+};
+```
+
+## Services Integration
+
+### Storage Service ([src/services/storage.ts](mdc:src/services/storage.ts))
+Handles AsyncStorage operations with error handling and serialization.
+
+### Notification Service ([src/services/notificationService.ts](mdc:src/services/notificationService.ts))
+Manages background notifications and timer alerts.
+
+## Hook Usage Patterns
+
+### Custom Hook Structure
+```typescript
+export const useCustomHook = (dependencies: Dependencies) => {
+  const [state, setState] = useState(initialState);
+  const { someContext } = useContext(SomeContext);
+  
+  // Effects for side effects
+  useEffect(() => {
+    // Setup/cleanup
+  }, [dependencies]);
+  
+  // Memoized values
+  const memoizedValue = useMemo(() => {
+    return expensiveCalculation(state);
+  }, [state]);
+  
+  // Callbacks
+  const handleAction = useCallback(() => {
+    // Action handler
+  }, [dependencies]);
+  
+  return {
+    state,
+    actions: { handleAction },
+    computed: { memoizedValue }
+  };
+};
+```
+
+### Context Consumption
+```typescript
+// Hook for consuming context
+export const useAppState = () => {
+  const context = useContext(AppStateContext);
+  if (!context) {
+    throw new Error('useAppState must be used within AppStateProvider');
+  }
+  return context;
+};
+```

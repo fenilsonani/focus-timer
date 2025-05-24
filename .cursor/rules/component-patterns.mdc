@@ -1,0 +1,107 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Component Patterns & Organization
+
+## Directory Structure
+```
+src/components/
+├── common/          # Reusable UI components
+├── timer/           # Timer-specific components
+├── groups/          # Group management components
+└── index.ts         # Component exports
+```
+
+## Component Categories
+
+### Common Components ([src/components/common/](mdc:src/components/common))
+Reusable UI components used throughout the app:
+- [Button.tsx](mdc:src/components/common/Button.tsx) - Customizable button with variants and theming
+- [Card.tsx](mdc:src/components/common/Card.tsx) - Container component with consistent styling
+- [BottomNavigation.tsx](mdc:src/components/common/BottomNavigation.tsx) - Main navigation component
+- [ModalHeader.tsx](mdc:src/components/common/ModalHeader.tsx) - Consistent modal headers
+- [NotificationStatus.tsx](mdc:src/components/common/NotificationStatus.tsx) - Notification permission status
+
+### Modal Components
+Modal components follow a consistent pattern:
+- [NotesModal.tsx](mdc:src/components/common/NotesModal.tsx) - Note creation/editing
+- [ReminderModal.tsx](mdc:src/components/common/ReminderModal.tsx) - Reminder setup
+- [FolderEditModal.tsx](mdc:src/components/common/FolderEditModal.tsx) - Group/folder editing
+- [HabitCreationModal.tsx](mdc:src/components/common/HabitCreationModal.tsx) - Habit creation
+- [TimePickerModal.tsx](mdc:src/components/common/TimePickerModal.tsx) - Time selection
+- [InputModal.tsx](mdc:src/components/common/InputModal.tsx) - Generic input modal
+
+## Component Patterns
+
+### Props Interface Pattern
+All components use TypeScript interfaces for props:
+```typescript
+interface ComponentProps {
+  // Required props first
+  title: string;
+  onPress: () => void;
+  
+  // Optional props with defaults
+  variant?: 'primary' | 'secondary';
+  disabled?: boolean;
+  
+  // Style props
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+}
+
+export const Component: React.FC<ComponentProps> = ({ 
+  title, 
+  onPress,
+  variant = 'primary',
+  disabled = false,
+  style,
+  textStyle 
+}) => {
+  // Component implementation
+};
+```
+
+### Theme Integration
+All components use the theme hook for consistent styling:
+```typescript
+import { useTheme } from '../../hooks/useTheme';
+
+export const Component: React.FC<Props> = () => {
+  const { theme } = useTheme();
+  
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+    },
+  });
+};
+```
+
+### Haptic Feedback Pattern
+Interactive components include haptic feedback:
+```typescript
+import * as Haptics from 'expo-haptics';
+
+const handlePress = () => {
+  if (haptic) {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }
+  onPress();
+};
+```
+
+## File Naming Conventions
+- Component files: `PascalCase.tsx` (e.g., `Button.tsx`, `NotesModal.tsx`)
+- Hook files: `camelCase.ts` (e.g., `useTimer.ts`, `useAppState.tsx`)
+- Service files: `camelCase.ts` (e.g., `notificationService.ts`)
+- Screen files: `PascalCaseScreen.tsx` (e.g., `HomeScreen.tsx`)
+
+## Export Patterns
+Components are exported both individually and through barrel exports:
+- Individual: `export const Button: React.FC<ButtonProps> = ...`
+- Barrel export: [src/components/index.ts](mdc:src/components/index.ts) re-exports all components

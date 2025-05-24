@@ -27,7 +27,6 @@ export interface Note {
   id: string;
   title: string;
   content: string;
-  groupId?: string;
   sessionId?: string;
   tags: string[];
   createdAt: Date;
@@ -57,6 +56,7 @@ export interface AppState {
 
 export interface AppSettings {
   theme: 'light' | 'dark' | 'auto';
+  colorTheme: 'default' | 'monochrome' | 'ocean' | 'forest' | 'sunset' | 'purple';
   defaultFocusDuration: number;
   hapticFeedback: boolean;
   keepScreenAwake: boolean;

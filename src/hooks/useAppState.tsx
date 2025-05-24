@@ -24,11 +24,10 @@ interface AppStateContextType {
   setCurrentSession: (sessionId: string | undefined) => void;
   
   // Note operations
-  createNote: (title: string, content: string, groupId?: string, sessionId?: string, tags?: string[]) => Promise<Note>;
+  createNote: (title: string, content: string, sessionId?: string, tags?: string[]) => Promise<Note>;
   updateNote: (noteId: string, updates: Partial<Note>) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   getNote: (noteId: string) => Note | undefined;
-  getNotesForGroup: (groupId: string) => Note[];
   getNotesForSession: (sessionId: string) => Note[];
   
   // Reminder operations
@@ -51,6 +50,7 @@ interface AppStateContextType {
 
 const defaultSettings: AppSettings = {
   theme: 'auto',
+  colorTheme: 'default',
   defaultFocusDuration: 1500, // 25 minutes
   hapticFeedback: true,
   keepScreenAwake: true,
@@ -94,7 +94,24 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       const savedState = await storageService.loadAppState();
       
       if (savedState) {
-        setState(savedState);
+        // Remove groupId from all notes as we no longer use this feature
+        if (savedState.notes) {
+          Object.values(savedState.notes).forEach(note => {
+            // @ts-ignore - removing groupId from notes
+            delete note.groupId;
+          });
+        }
+        
+        // Merge saved settings with default settings to ensure all properties exist
+        const mergedState = {
+          ...savedState,
+          settings: {
+            ...defaultSettings,
+            ...savedState.settings,
+          },
+        };
+        
+        setState(mergedState);
       }
     } catch (err) {
       setError('Failed to load app state');
@@ -292,12 +309,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   }, [updateState]);
 
   // Note operations
-  const createNote = useCallback(async (title: string, content: string, groupId?: string, sessionId?: string, tags?: string[]): Promise<Note> => {
+  const createNote = useCallback(async (title: string, content: string, sessionId?: string, tags?: string[]): Promise<Note> => {
     const note: Note = {
       id: generateId(),
       title,
       content,
-      groupId,
       sessionId,
       tags: tags || [],
       createdAt: new Date(),
@@ -354,10 +370,6 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
 
   const getNote = useCallback((noteId: string) => {
     return state.notes[noteId];
-  }, [state.notes]);
-
-  const getNotesForGroup = useCallback((groupId: string) => {
-    return Object.values(state.notes).filter(note => note.groupId === groupId);
   }, [state.notes]);
 
   const getNotesForSession = useCallback((sessionId: string) => {
@@ -492,7 +504,6 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     updateNote,
     deleteNote,
     getNote,
-    getNotesForGroup,
     getNotesForSession,
     
     createReminder,

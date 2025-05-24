@@ -14,6 +14,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { InputModal } from '../components/common/InputModal';
 import { FolderEditModal } from '../components/common/FolderEditModal';
 import { HabitCreationModal } from '../components/common/HabitCreationModal';
@@ -140,66 +141,33 @@ export const HomeScreen: React.FC = () => {
         backgroundColor={theme.colors.background}
       />
 
-      {/* Header with breadcrumbs */}
-      <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.breadcrumbContainer}
-        >
-          {breadcrumbPath.map((item, index) => (
-            <View key={item.id} style={styles.breadcrumbItem}>
-              <TouchableOpacity
-                onPress={() => {
-                  if (index === 0) {
-                    navigateToRoot();
-                  } else {
-                    navigateToBreadcrumb(index - 1);
-                  }
-                }}
-                style={styles.breadcrumbButton}
-              >
-                <Text style={[
-                  styles.breadcrumbText,
-                  { 
-                    color: index === breadcrumbPath.length - 1 
-                      ? theme.colors.primary 
-                      : theme.colors.onSurfaceVariant 
-                  }
-                ]}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-              
-              {index < breadcrumbPath.length - 1 && (
-                <MaterialIcons
-                  name="chevron-right"
-                  size={20}
-                  color={theme.colors.onSurfaceVariant}
-                  style={styles.breadcrumbSeparator}
-                />
-              )}
-            </View>
-          ))}
-        </ScrollView>
-
-        {/* Action buttons */}
-        <View style={styles.headerActions}>
-          <TouchableOpacity
-            onPress={handleCreateFolder}
-            style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
-          >
-            <MaterialIcons name="create-new-folder" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            onPress={handleCreateTimer}
-            style={[styles.actionButton, { backgroundColor: theme.colors.secondary }]}
-          >
-            <MaterialIcons name="timer" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <ScreenHeader
+        title={currentFolder ? currentFolder.name : "Home"}
+        subtitle={currentFolder ? `${childGroups.length} folders • ${childSessions.length} timers` : "Organize your habits and sessions"}
+        showBackButton={currentPath.length > 0}
+        onBackPress={() => {
+          if (currentPath.length > 0) {
+            setCurrentPath(currentPath.slice(0, -1));
+          }
+        }}
+        rightElement={
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              onPress={handleCreateFolder}
+              style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
+            >
+              <MaterialIcons name="create-new-folder" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={handleCreateTimer}
+              style={[styles.actionButton, { backgroundColor: theme.colors.secondary }]}
+            >
+              <MaterialIcons name="timer" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        }
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Current folder info */}
@@ -424,31 +392,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-  },
-  breadcrumbContainer: {
-    flex: 1,
-  },
-  breadcrumbItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  breadcrumbButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  breadcrumbText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  breadcrumbSeparator: {
-    marginHorizontal: 4,
-  },
+
   headerActions: {
     flexDirection: 'row',
     gap: 8,

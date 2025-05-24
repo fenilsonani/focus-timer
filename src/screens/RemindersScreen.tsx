@@ -14,6 +14,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useAppState } from '../hooks/useAppState';
 import { Button } from '../components/common/Button';
 import { ReminderModal } from '../components/common/ReminderModal';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { HabitReminder } from '../types';
 import { formatTime } from '../utils';
 
@@ -303,14 +304,11 @@ export const RemindersScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
-        <View style={styles.headerTop}>
-          <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
-            Reminders
-          </Text>
-          
-          {isSelectionMode ? (
+      <ScreenHeader
+        title="Reminders"
+        subtitle="Manage your habit reminders"
+        rightElement={
+          isSelectionMode ? (
             <View style={styles.selectionActions}>
               <Text style={[styles.selectionCount, { color: theme.colors.onSurfaceVariant }]}>
                 {selectedReminders.size} selected
@@ -342,8 +340,12 @@ export const RemindersScreen: React.FC = () => {
             >
               <MaterialIcons name="add" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-          )}
-        </View>
+          )
+        }
+      />
+
+      {/* Filters and Sort */}
+      <View style={[styles.filtersSection, { borderBottomColor: theme.colors.border }]}>
 
         {/* Filter Buttons */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer}>
@@ -478,21 +480,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  filtersSection: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
   },
   addButton: {
     width: 44,

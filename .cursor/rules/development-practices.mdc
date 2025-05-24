@@ -1,0 +1,301 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Development Practices & Best Practices
+
+## React Native / Expo Patterns
+
+### Expo-Specific Features
+The app leverages Expo SDK features extensively:
+```typescript
+// Background tasks
+import * as TaskManager from 'expo-task-manager';
+import * as BackgroundFetch from 'expo-background-fetch';
+
+// Notifications
+import * as Notifications from 'expo-notifications';
+
+// Device features
+import * as Haptics from 'expo-haptics';
+import { keepAwake, allowSleepAsync } from 'expo-keep-awake';
+
+// Constants and device info
+import Constants from 'expo-constants';
+import * as Device from 'expo-device';
+```
+
+### Platform-Specific Code
+Handle platform differences when necessary:
+```typescript
+import { Platform } from 'react-native';
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 0, // Status bar height
+    shadowOffset: Platform.select({
+      ios: { width: 0, height: 2 },
+      android: { width: 0, height: 4 },
+    }),
+  },
+});
+```
+
+## Performance Optimization
+
+### React.memo Usage
+Wrap components that receive complex props:
+```typescript
+export const ExpensiveComponent = React.memo<Props>(({ data, onPress }) => {
+  // Component implementation
+}, (prevProps, nextProps) => {
+  // Custom comparison if needed
+  return prevProps.data.id === nextProps.data.id;
+});
+```
+
+### useCallback for Event Handlers
+Prevent unnecessary re-renders:
+```typescript
+const handlePress = useCallback((id: string) => {
+  onItemPress(id);
+}, [onItemPress]);
+
+const handleLongPress = useCallback(() => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  onLongPress();
+}, [onLongPress]);
+```
+
+### useMemo for Expensive Calculations
+```typescript
+const sortedSessions = useMemo(() => {
+  return sessions
+    .filter(session => session.groupId === groupId)
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}, [sessions, groupId]);
+```
+
+### FlatList Optimization
+```typescript
+<FlatList
+  data={sessions}
+  keyExtractor={(item) => item.id}
+  removeClippedSubviews={true}
+  maxToRenderPerBatch={10}
+  windowSize={10}
+  getItemLayout={(data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  })}
+  renderItem={({ item }) => <SessionCard session={item} />}
+/>
+```
+
+## State Management Best Practices
+
+### Immutable Updates
+Always create new objects/arrays:
+```typescript
+// ✅ Correct
+const updateSession = (id: string, updates: Partial<FocusSession>) => {
+  setSessions(prev => ({
+    ...prev,
+    [id]: { ...prev[id], ...updates }
+  }));
+};
+
+// ❌ Incorrect
+const updateSessionWrong = (id: string, updates: Partial<FocusSession>) => {
+  sessions[id] = { ...sessions[id], ...updates }; // Mutating state
+  setSessions(sessions);
+};
+```
+
+### Effect Dependencies
+Be explicit about effect dependencies:
+```typescript
+useEffect(() => {
+  const timer = setInterval(() => {
+    setTimeRemaining(prev => prev - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []); // Empty dependency array for timer
+
+useEffect(() => {
+  if (timeRemaining <= 0) {
+    onTimerComplete();
+  }
+}, [timeRemaining, onTimerComplete]); // Include all dependencies
+```
+
+## Error Handling
+
+### Try-Catch for Async Operations
+```typescript
+const saveSession = async (session: FocusSession) => {
+  try {
+    await storage.saveSession(session);
+    showSuccess('Session saved');
+  } catch (error) {
+    console.error('Failed to save session:', error);
+    showError('Failed to save session');
+    // Rollback optimistic update
+    revertSessionUpdate(session.id);
+  }
+};
+```
+
+### Error Boundaries (if needed)
+```typescript
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorScreen onRetry={() => this.setState({ hasError: false })} />;
+    }
+    return this.props.children;
+  }
+}
+```
+
+## Accessibility
+
+### Screen Reader Support
+```typescript
+<TouchableOpacity
+  accessible={true}
+  accessibilityLabel="Start focus timer"
+  accessibilityHint="Double tap to start a 25-minute focus session"
+  accessibilityRole="button"
+  onPress={startTimer}
+>
+  <Text>Start Timer</Text>
+</TouchableOpacity>
+```
+
+### Semantic Elements
+```typescript
+<View accessibilityRole="header">
+  <Text style={styles.title}>Focus Sessions</Text>
+</View>
+
+<View accessibilityRole="list">
+  {sessions.map(session => (
+    <View key={session.id} accessibilityRole="listitem">
+      <SessionCard session={session} />
+    </View>
+  ))}
+</View>
+```
+
+## Theming Best Practices
+
+### Consistent Color Usage
+Always use theme colors instead of hardcoded values:
+```typescript
+// ✅ Correct
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.outline,
+  },
+});
+
+// ❌ Incorrect
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E0E0E0',
+  },
+});
+```
+
+### Responsive Spacing
+Use theme spacing values:
+```typescript
+const styles = StyleSheet.create({
+  container: {
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
+  },
+});
+```
+
+## Testing Considerations
+
+### Component Testing
+```typescript
+// Mock dependencies
+jest.mock('../../hooks/useTheme', () => ({
+  useTheme: () => ({ theme: mockTheme }),
+}));
+
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+}));
+
+test('Button calls onPress when pressed', () => {
+  const onPress = jest.fn();
+  render(<Button title="Test" onPress={onPress} />);
+  
+  fireEvent.press(screen.getByText('Test'));
+  expect(onPress).toHaveBeenCalled();
+});
+```
+
+### Hook Testing
+```typescript
+test('useTimer decrements time correctly', () => {
+  const { result } = renderHook(() => useTimer(60));
+  
+  act(() => {
+    result.current.start();
+  });
+  
+  act(() => {
+    jest.advanceTimersByTime(1000);
+  });
+  
+  expect(result.current.timeRemaining).toBe(59);
+});
+```
+
+## Bundle Size Optimization
+
+### Import Only What You Need
+```typescript
+// ✅ Correct - tree-shakeable
+import { format } from 'date-fns';
+import { debounce } from 'lodash';
+
+// ❌ Incorrect - imports entire library
+import * as dateFns from 'date-fns';
+import _ from 'lodash';
+```
+
+### Dynamic Imports for Large Components
+```typescript
+const AnalyticsChart = React.lazy(() => import('./AnalyticsChart'));
+
+// Use with Suspense
+<Suspense fallback={<LoadingSpinner />}>
+  <AnalyticsChart data={chartData} />
+</Suspense>
+```

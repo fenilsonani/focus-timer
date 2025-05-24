@@ -16,6 +16,8 @@ import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { TimePickerModal } from '../components/common/TimePickerModal';
+import { ThemeSelectorModal } from '../components/common/ThemeSelectorModal';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { notificationService } from '../services/notificationService';
 import { formatDuration } from '../utils';
 
@@ -24,6 +26,7 @@ export const SettingsScreen: React.FC = () => {
   const { state, updateSettings, exportData, importData, clearAllData } = useAppState();
   const [showTimeSettings, setShowTimeSettings] = useState(false);
   const [showCustomTimePicker, setShowCustomTimePicker] = useState(false);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [notificationPermissions, setNotificationPermissions] = useState({ granted: false, canAskAgain: true });
   
   const settings = state.settings;
@@ -165,14 +168,10 @@ export const SettingsScreen: React.FC = () => {
         backgroundColor={theme.colors.background}
       />
 
-      <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
-        <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
-          Settings
-        </Text>
-        <Text style={[styles.headerSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-          Customize your habit tracking experience
-        </Text>
-      </View>
+      <ScreenHeader
+        title="Settings"
+        subtitle="Customize your habit tracking experience"
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Timer Settings */}
@@ -295,22 +294,10 @@ export const SettingsScreen: React.FC = () => {
           </Text>
 
           <SettingRow
-            title="Theme"
-            subtitle="Choose your preferred theme"
+            title="Theme & Colors"
+            subtitle={`${settings.theme === 'auto' ? 'Auto' : settings.theme === 'light' ? 'Light' : 'Dark'} • ${(settings.colorTheme || 'default').charAt(0).toUpperCase() + (settings.colorTheme || 'default').slice(1)}`}
             icon="palette"
-            value={settings.theme === 'auto' ? 'Auto' : settings.theme === 'light' ? 'Light' : 'Dark'}
-            onPress={() => {
-              Alert.alert(
-                'Choose Theme',
-                'Select your preferred theme',
-                [
-                  { text: 'Auto', onPress: () => setMode('auto') },
-                  { text: 'Light', onPress: () => setMode('light') },
-                  { text: 'Dark', onPress: () => setMode('dark') },
-                  { text: 'Cancel', style: 'cancel' }
-                ]
-              );
-            }}
+            onPress={() => setShowThemeSelector(true)}
           />
         </Card>
 
@@ -437,6 +424,12 @@ export const SettingsScreen: React.FC = () => {
         }}
         onCancel={() => setShowCustomTimePicker(false)}
       />
+
+      {/* Theme Selector Modal */}
+      <ThemeSelectorModal
+        visible={showThemeSelector}
+        onClose={() => setShowThemeSelector(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -445,19 +438,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-  },
+
   content: {
     flex: 1,
     padding: 16,

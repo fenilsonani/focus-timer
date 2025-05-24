@@ -12,6 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { formatDuration, formatTime } from '../utils';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -296,14 +297,10 @@ export const AnalyticsScreen: React.FC = () => {
         backgroundColor={theme.colors.background}
       />
 
-      <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
-        <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
-          Analytics
-        </Text>
-        <Text style={[styles.headerSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-          Your habit tracking insights
-        </Text>
-      </View>
+      <ScreenHeader
+        title="Analytics"
+        subtitle="Your habit tracking insights"
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Key Metrics */}
@@ -417,19 +414,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-  },
+
   content: {
     flex: 1,
     padding: 16,

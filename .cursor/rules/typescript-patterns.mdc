@@ -1,0 +1,148 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# TypeScript Patterns & Types
+
+## Type Definitions
+All TypeScript interfaces and types are defined in [src/types/index.ts](mdc:src/types/index.ts).
+
+## Core Data Models
+
+### Focus Session Interface
+```typescript
+interface FocusSession {
+  id: string;
+  title: string;
+  duration: number; // in seconds
+  notes: string;
+  startTime?: Date;
+  endTime?: Date;
+  isActive: boolean;
+  groupId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Group Interface (Hierarchical Structure)
+```typescript
+interface Group {
+  id: string;
+  name: string;
+  parentId?: string;        // For nested groups
+  children: string[];       // Child group IDs
+  sessions: string[];       // Session IDs in this group
+  color: string;
+  icon?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### App State Pattern
+The main app state uses Record types for efficient lookups:
+```typescript
+interface AppState {
+  groups: Record<string, Group>;
+  sessions: Record<string, FocusSession>;
+  notes: Record<string, Note>;
+  reminders: Record<string, HabitReminder>;
+  currentSession?: string;
+  settings: AppSettings;
+}
+```
+
+## TypeScript Patterns
+
+### Strict Type Safety
+- All function parameters and return types are explicitly typed
+- Optional properties use `?` syntax
+- Union types for constrained values: `'light' | 'dark' | 'auto'`
+
+### Component Props Pattern
+```typescript
+interface ComponentProps {
+  // Required props first
+  id: string;
+  title: string;
+  onPress: () => void;
+  
+  // Optional props with sensible defaults
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+  
+  // React Native specific types
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+}
+```
+
+### Hook Return Types
+Custom hooks return consistently typed objects:
+```typescript
+// Timer hook return type
+interface TimerState {
+  timeRemaining: number;
+  isRunning: boolean;
+  isPaused: boolean;
+  mode: 'focus' | 'break';
+}
+
+// Theme hook return type
+interface ThemeContext {
+  theme: Theme;
+  isDark: boolean;
+  toggleTheme: () => void;
+  setTheme: (theme: 'light' | 'dark' | 'auto') => void;
+}
+```
+
+### Utility Types Usage
+The codebase uses utility types for type transformations:
+- `Record<string, Type>` for object mappings
+- `Partial<Type>` for optional updates
+- `Pick<Type, Keys>` for selecting specific properties
+- `Omit<Type, Keys>` for excluding properties
+
+### Date Handling
+Dates are consistently typed as `Date` objects, with conversion utilities in [src/utils/index.ts](mdc:src/utils/index.ts).
+
+### Navigation Types
+```typescript
+type BottomSheetType = 'timer' | 'notes' | 'settings' | 'group-creation' | null;
+
+interface NavigationItem {
+  id: string;
+  name: string;
+  type: 'group' | 'session';
+  path: string[];
+}
+```
+
+## Import/Export Patterns
+```typescript
+// Named exports for interfaces
+export interface FocusSession { ... }
+export interface Group { ... }
+
+// Type-only imports when appropriate
+import type { FocusSession } from '../types';
+
+// Re-exports from index files
+export * from './types';
+export * from './utils';
+```
+
+## Error Handling Types
+```typescript
+type Result<T> = {
+  success: true;
+  data: T;
+} | {
+  success: false;
+  error: string;
+};
+```

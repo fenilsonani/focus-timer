@@ -1,15 +1,19 @@
 import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
-import { createTheme } from '../constants/theme';
+import { createTheme, ThemeMetadata } from '../constants/theme';
+import { useAppState } from './useAppState';
 
 type ThemeMode = 'light' | 'dark' | 'auto';
+type ColorTheme = keyof typeof ThemeMetadata;
 type Theme = ReturnType<typeof createTheme>;
 
 interface ThemeContextType {
   theme: Theme;
   mode: ThemeMode;
+  colorTheme: ColorTheme;
   isDark: boolean;
   setMode: (mode: ThemeMode) => void;
+  setColorTheme: (colorTheme: ColorTheme) => void;
   toggleMode: () => void;
 }
 
@@ -17,13 +21,19 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const systemColorScheme = useColorScheme();
-  const [mode, setMode] = useState<ThemeMode>('auto');
-
+  const { state, updateSettings } = useAppState();
+  
+  const mode = state.settings.theme;
+  const colorTheme = state.settings.colorTheme || 'default';
   const isDark = mode === 'dark' || (mode === 'auto' && systemColorScheme === 'dark');
-  const theme = createTheme(isDark ? 'dark' : 'light');
+  const theme = createTheme(isDark ? 'dark' : 'light', colorTheme);
 
-  const handleSetMode = (newMode: ThemeMode) => {
-    setMode(newMode);
+  const handleSetMode = async (newMode: ThemeMode) => {
+    await updateSettings({ theme: newMode });
+  };
+
+  const handleSetColorTheme = async (newColorTheme: ColorTheme) => {
+    await updateSettings({ colorTheme: newColorTheme });
   };
 
   const toggleMode = () => {
@@ -34,8 +44,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const contextValue: ThemeContextType = {
     theme,
     mode,
+    colorTheme,
     isDark,
     setMode: handleSetMode,
+    setColorTheme: handleSetColorTheme,
     toggleMode,
   };
 

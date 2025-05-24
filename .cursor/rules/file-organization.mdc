@@ -1,0 +1,167 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# File Organization & Structure
+
+## Directory Structure
+```
+focus-timer/
+├── .expo/                  # Expo build artifacts
+├── assets/                 # Static assets (images, fonts)
+├── src/                    # Source code
+│   ├── components/         # React components
+│   │   ├── common/         # Reusable UI components  
+│   │   ├── timer/          # Timer-specific components
+│   │   ├── groups/         # Group management components
+│   │   └── index.ts        # Component exports
+│   ├── constants/          # App constants
+│   │   └── theme.ts        # Theme definitions
+│   ├── hooks/              # Custom React hooks
+│   │   ├── useAppState.tsx # Main app state hook
+│   │   ├── useTheme.tsx    # Theme hook
+│   │   ├── useTimer.ts     # Timer hooks
+│   │   └── useTimerWithNotifications.ts
+│   ├── screens/            # Main app screens
+│   │   ├── HomeScreen.tsx
+│   │   ├── FocusScreen.tsx
+│   │   ├── AnalyticsScreen.tsx
+│   │   ├── NotesScreen.tsx
+│   │   ├── RemindersScreen.tsx
+│   │   └── SettingsScreen.tsx
+│   ├── services/           # External service integrations
+│   │   ├── storage.ts      # AsyncStorage wrapper
+│   │   └── notificationService.ts
+│   ├── types/              # TypeScript type definitions
+│   │   └── index.ts        # All interfaces and types
+│   └── utils/              # Utility functions
+│       └── index.ts        # Helper functions
+├── App.tsx                 # Main app component
+├── index.ts                # Expo entry point
+├── package.json            # Dependencies and scripts
+└── tsconfig.json           # TypeScript configuration
+```
+
+## File Naming Conventions
+
+### Components
+- **Screen Components**: `ScreenNameScreen.tsx` (e.g., `HomeScreen.tsx`)
+- **UI Components**: `ComponentName.tsx` (e.g., `Button.tsx`, `Card.tsx`)
+- **Modal Components**: `FeatureNameModal.tsx` (e.g., `NotesModal.tsx`)
+
+### Hooks
+- **Custom Hooks**: `useFeatureName.ts/tsx` (e.g., `useTimer.ts`, `useAppState.tsx`)
+- Use `.tsx` if the hook returns JSX or contains React components
+- Use `.ts` for pure logic hooks
+
+### Services & Utils
+- **Services**: `serviceName.ts` (e.g., `notificationService.ts`, `storage.ts`)
+- **Utils**: Grouped in `index.ts` files with descriptive function names
+
+### Constants & Types
+- **Constants**: Feature-based files (e.g., `theme.ts`, `api.ts`)
+- **Types**: Centralized in `src/types/index.ts`
+
+## Import/Export Patterns
+
+### Barrel Exports
+Use index files to create clean import paths:
+```typescript
+// src/components/index.ts
+export { Button } from './common/Button';
+export { Card } from './common/Card';
+export { NotesModal } from './common/NotesModal';
+
+// Usage
+import { Button, Card } from '../components';
+```
+
+### Relative Import Patterns
+```typescript
+// From components
+import { useTheme } from '../../hooks/useTheme';
+import { FocusSession } from '../../types';
+
+// From screens  
+import { Button } from '../components/common/Button';
+import { useAppState } from '../hooks/useAppState';
+
+// From hooks
+import { storage } from '../services/storage';
+import type { AppState } from '../types';
+```
+
+### Named Exports (Preferred)
+```typescript
+// Export
+export const Button: React.FC<ButtonProps> = ({ ... }) => { ... };
+export const useTimer = (duration: number) => { ... };
+
+// Import
+import { Button } from './Button';
+import { useTimer } from '../hooks/useTimer';
+```
+
+### Default Exports (Limited Use)
+Only for main components and screens:
+```typescript
+// App.tsx, Screen components
+export default function App() { ... }
+```
+
+## File Size Guidelines
+- **Components**: Keep under 300 lines (split into smaller components if larger)
+- **Hooks**: Under 200 lines (extract utilities if complex)
+- **Screens**: Can be larger (400-600 lines) as they orchestrate multiple components
+- **Services**: Under 300 lines per service
+
+## Organization Principles
+
+### Feature-Based Grouping
+Related components are grouped by feature:
+```
+components/
+├── common/         # Reusable across features
+├── timer/          # Timer-specific
+└── groups/         # Group management
+```
+
+### Separation of Concerns
+- **Components**: Only UI logic and rendering
+- **Hooks**: State management and side effects  
+- **Services**: External API calls and integrations
+- **Utils**: Pure functions and helpers
+- **Types**: Type definitions only
+
+### Co-location
+Related files are placed close together:
+- Modal components with their specific logic
+- Screen components with their specific hooks (if any)
+- Theme constants with theme hook
+
+## Import Order Convention
+```typescript
+// 1. React and React Native
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+// 2. Third-party libraries
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+
+// 3. Internal hooks and context
+import { useTheme } from '../../hooks/useTheme';
+import { useAppState } from '../../hooks/useAppState';
+
+// 4. Components
+import { Button } from '../common/Button';
+
+// 5. Types and constants
+import type { FocusSession } from '../../types';
+import { COLORS } from '../../constants/theme';
+
+// 6. Utils and services
+import { formatTime } from '../../utils';
+import { storage } from '../../services/storage';
+```

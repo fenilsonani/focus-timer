@@ -1,0 +1,58 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Focus Timer - Project Overview
+
+## Architecture
+This is a React Native/Expo TypeScript focus timer application with the following key architecture:
+
+### Main Entry Points
+- [App.tsx](mdc:App.tsx) - Main application component with navigation and provider setup
+- [index.ts](mdc:index.ts) - Expo entry point
+- [package.json](mdc:package.json) - Dependencies and scripts
+
+### Technology Stack
+- **Framework**: React Native with Expo SDK ~53.0.9
+- **Language**: TypeScript
+- **UI Library**: React Native Paper
+- **State Management**: React Context (custom hooks)
+- **Navigation**: Custom tab navigation with bottom bar
+- **Storage**: AsyncStorage for persistence
+- **Notifications**: Expo Notifications with background tasks
+- **Animations**: React Native Reanimated
+- **Gestures**: React Native Gesture Handler
+- **UI Components**: Bottom sheets, linear gradients, haptic feedback
+
+### App Structure
+The app uses a tab-based navigation with 5 main screens:
+1. **Home** - Main focus timer and group management
+2. **Analytics** - Session statistics and analytics
+3. **Notes** - Note-taking functionality linked to sessions
+4. **Reminders** - Habit reminders and notifications
+5. **Settings** - App configuration and preferences
+
+### Core Features
+- Focus sessions with customizable durations
+- Hierarchical group organization for sessions
+- Background timer with notifications
+- Notes linked to focus sessions
+- Habit reminders with scheduling
+- Analytics and session tracking
+- Dark/light theme support
+- Haptic feedback integration
+
+### Provider Architecture
+The app uses nested context providers:
+```typescript
+<GestureHandlerRootView>
+  <AppStateProvider>      // Global app state management
+    <ThemeProvider>       // Theme and styling
+      <BottomSheetModalProvider>  // Modal management
+        // App content
+      </BottomSheetModalProvider>
+    </ThemeProvider>
+  </AppStateProvider>
+</GestureHandlerRootView>
+```

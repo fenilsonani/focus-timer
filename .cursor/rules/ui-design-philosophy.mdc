@@ -1,0 +1,241 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# UI Design Philosophy & Visual System
+
+## Design Philosophy
+The Focus Timer app follows a **modern, minimalist design philosophy** focused on clarity, calmness, and user concentration. The UI is designed to reduce cognitive load and promote focus through thoughtful use of color, spacing, and typography.
+
+## Visual Design System
+
+### Color Philosophy
+The app uses a **dual-theme system** with carefully crafted colors defined in [src/constants/theme.ts](mdc:src/constants/theme.ts):
+
+#### Light Theme Approach
+- **Primary**: `#6366F1` (Indigo) - Calming focus color, reduces stress
+- **Secondary**: `#EC4899` (Pink) - Energetic accent for breaks and actions
+- **Background**: `#FFFFFF` - Pure white for maximum clarity
+- **Surface**: `#F8FAFC` - Subtle gray for cards and elevated elements
+- **Success/Error**: Green/Red for clear feedback states
+
+#### Dark Theme Approach
+- **Primary**: `#818CF8` (Lighter indigo) - Softer on eyes in dark mode
+- **Background**: `#0F172A` (Deep slate) - True dark background
+- **Surface**: `#1E293B` - Elevated dark surfaces
+- **Reduced contrast** for comfortable night usage
+
+#### Color Psychology
+```typescript
+// Focus-oriented color choices
+const colorMeaning = {
+  indigo: 'Concentration, stability, trust',
+  pink: 'Energy, creativity, motivation', 
+  green: 'Success, completion, growth',
+  slate: 'Neutrality, focus, minimal distraction'
+};
+```
+
+### Typography Hierarchy
+Defined in [Typography object](mdc:src/constants/theme.ts), following a **clear information hierarchy**:
+
+```typescript
+// Typography scale optimized for focus apps
+Typography = {
+  hero: 48px,      // Major headings, timer displays
+  title: 32px,     // Screen titles
+  heading: 24px,   // Section headers
+  body: 16px,      // Main content
+  timer: 72px,     // Special timer display (lightweight)
+}
+```
+
+#### Typography Principles
+- **Lightweight fonts** (300-400) for timer displays to reduce visual weight
+- **Strong hierarchy** with clear size jumps (16px → 24px → 32px)
+- **Negative letter spacing** (-1 to -2px) for large text to improve readability
+- **Consistent line height** ratio of 1.4-1.5 for optimal reading
+
+### Spacing System
+Based on **8px grid system** for consistent rhythm:
+
+```typescript
+Spacing = {
+  xs: 4px,   // Minimal spacing, tags
+  sm: 8px,   // Small gaps, icon margins  
+  md: 16px,  // Standard spacing, card padding
+  lg: 24px,  // Section spacing
+  xl: 32px,  // Major layout spacing
+  xxl: 48px, // Screen-level spacing
+}
+```
+
+#### Spacing Philosophy
+- **Touch-friendly**: Minimum 44px touch targets
+- **Breathing room**: Generous spacing between sections (24-32px)
+- **Content density**: Balanced information density without crowding
+
+## Component Design Patterns
+
+### Card System
+Cards are the **primary content containers**, following elevation principles:
+
+```typescript
+// Card variants for different contexts
+variants = {
+  default: 'Basic surface color',
+  elevated: 'Shadow + surface (important content)',
+  outlined: 'Border emphasis (selected states)',
+  filled: 'Background emphasis (grouped content)'
+}
+```
+
+#### Card Design Principles
+- **Rounded corners** (16px) for friendly, modern feel
+- **Subtle shadows** for depth without distraction
+- **Consistent padding** (16-20px) for visual rhythm
+
+### Button Hierarchy
+Buttons follow **clear visual hierarchy** defined in [Button.tsx](mdc:src/components/common/Button.tsx):
+
+```typescript
+// Button visual hierarchy
+primary: 'Linear gradient, high emphasis'
+secondary: 'Gradient accent, medium emphasis' 
+outline: 'Border only, low emphasis'
+ghost: 'Text only, minimal emphasis'
+```
+
+#### Button Design Thinking
+- **Gradient backgrounds** for primary actions (creates depth and premium feel)
+- **Haptic feedback** on interaction (enhances tactile experience)
+- **Size variants** (small/medium/large) for different contexts
+- **Disabled states** with reduced opacity (clear interaction feedback)
+
+### Navigation Design
+The [BottomNavigation](mdc:src/components/common/BottomNavigation.tsx) uses **icon + label** pattern:
+
+#### Navigation Principles
+- **Circular backgrounds** for active states (visual enclosure)
+- **Color coding** active vs inactive states
+- **Icon consistency** using Material Icons for recognition
+- **Readable labels** with proper font weights
+
+## Visual Hierarchy Patterns
+
+### Information Architecture
+Content follows **clear visual hierarchy**:
+
+1. **Primary**: Screen titles, timer displays
+2. **Secondary**: Section headers, important actions  
+3. **Tertiary**: Body text, descriptions
+4. **Quaternary**: Metadata, timestamps, subtle actions
+
+### Color Usage Hierarchy
+```typescript
+// Color importance in UI
+onSurface: 'Primary text content'
+primary: 'Important actions, active states'
+onSurfaceVariant: 'Secondary text, metadata'
+surfaceVariant: 'Subtle backgrounds, dividers'
+```
+
+## Interaction Design
+
+### Haptic Feedback Philosophy
+Every interactive element includes **contextual haptic feedback**:
+
+```typescript
+// Haptic intensity mapping
+Light: 'Card taps, navigation'
+Medium: 'Button presses, confirmations'
+Heavy: 'Long presses, important actions'
+```
+
+### Animation & Timing
+Defined in [Animation constants](mdc:src/constants/theme.ts):
+
+```typescript
+Animation = {
+  fast: 200ms,    // Quick feedback
+  normal: 300ms,  // Standard transitions
+  slow: 500ms,    // Complex state changes
+  spring: 'Natural, bouncy feel for interactions'
+}
+```
+
+#### Animation Principles
+- **Fast feedback** (200ms) for immediate responses
+- **Smooth transitions** (300ms) for state changes
+- **Spring animations** for natural, delightful interactions
+
+## Specialized UI Components
+
+### Timer Display Design
+The [TimerDisplay](mdc:src/components/timer/TimerDisplay.tsx) exemplifies **focus-first design**:
+
+#### Timer Design Principles
+- **Circular progress** (universally understood time representation)
+- **Lightweight typography** (reduces visual noise during focus)
+- **Color-coded modes** (blue for focus, pink for breaks)
+- **Subtle glow effects** (ambient lighting for active states)
+- **Large, readable numbers** optimized for quick glances
+
+### Data Visualization
+Charts and analytics follow **minimal, informative design**:
+
+```typescript
+// Chart design principles
+barCharts: 'Simple bars with clear value display'
+progressRings: 'Circular progress for completion states'
+colorCoding: 'Consistent color meaning across charts'
+```
+
+## Responsive & Adaptive Design
+
+### Screen Size Adaptation
+```typescript
+// Responsive considerations
+minTouchTarget: 44px,     // Accessibility requirement
+cardWidth: '(screenWidth - 48) / 2',  // Two-column layout
+timerSize: 'min(width * 0.7, 300)',   // Proportional sizing
+```
+
+### Dark Mode Considerations
+- **Reduced contrast** for eye comfort
+- **Warmer colors** in dark theme
+- **Maintained hierarchy** across themes
+- **OLED-friendly** true blacks where appropriate
+
+## Accessibility Integration
+
+### Screen Reader Support
+All interactive elements include:
+```typescript
+accessible: true
+accessibilityLabel: 'Clear, descriptive labels'
+accessibilityHint: 'Action descriptions'
+accessibilityRole: 'Semantic element types'
+```
+
+### Visual Accessibility
+- **High contrast ratios** for text readability
+- **Color independence** (not relying solely on color for meaning)
+- **Large touch targets** (minimum 44px)
+- **Clear focus indicators** for keyboard navigation
+
+## Design Consistency Rules
+
+### Component Reusability
+- **Base components** ([Button](mdc:src/components/common/Button.tsx), [Card](mdc:src/components/common/Card.tsx)) are highly reusable
+- **Variant systems** allow customization while maintaining consistency
+- **Theme integration** ensures all components respect current theme
+
+### Visual Consistency
+- **Border radius**: Consistent 8-16px across components
+- **Shadow system**: Standardized elevation levels (sm/md/lg/xl)
+- **Color tokens**: All colors come from theme, no hardcoded values
+- **Spacing tokens**: All spacing uses theme values
+
+This design system creates a **cohesive, calming, and focus-oriented** user experience that supports users in their productivity and mindfulness journey.

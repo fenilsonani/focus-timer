@@ -23,16 +23,16 @@ interface NotesModalProps {
   isVisible: boolean;
   onClose: () => void;
   sessionId?: string;
-  groupId?: string;
   title?: string;
+  editingNote?: Note | null;
 }
 
 export const NotesModal: React.FC<NotesModalProps> = ({
   isVisible,
   onClose,
   sessionId,
-  groupId,
   title = 'Notes',
+  editingNote,
 }) => {
   const { theme } = useTheme();
   const { 
@@ -41,11 +41,9 @@ export const NotesModal: React.FC<NotesModalProps> = ({
     updateNote, 
     deleteNote, 
     getNotesForSession, 
-    getNotesForGroup 
   } = useAppState();
 
   const [isCreating, setIsCreating] = useState(false);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [noteTags, setNoteTags] = useState<string[]>([]);
@@ -54,8 +52,6 @@ export const NotesModal: React.FC<NotesModalProps> = ({
   // Get relevant notes
   const notes = sessionId 
     ? getNotesForSession(sessionId)
-    : groupId 
-    ? getNotesForGroup(groupId)
     : Object.values(state.notes);
 
   // Sort notes by creation date (newest first)
@@ -68,7 +64,6 @@ export const NotesModal: React.FC<NotesModalProps> = ({
     setNoteContent('');
     setNoteTags([]);
     setTagInput('');
-    setEditingNote(null);
     setIsCreating(false);
   }, []);
 
@@ -78,11 +73,9 @@ export const NotesModal: React.FC<NotesModalProps> = ({
     setNoteContent('');
     setNoteTags([]);
     setTagInput('');
-    setEditingNote(null);
   }, []);
 
   const handleEditNote = useCallback((note: Note) => {
-    setEditingNote(note);
     setNoteTitle(note.title);
     setNoteContent(note.content);
     setNoteTags([...note.tags]);
@@ -126,7 +119,6 @@ export const NotesModal: React.FC<NotesModalProps> = ({
         await createNote(
           noteTitle.trim(),
           noteContent.trim(),
-          groupId,
           sessionId,
           noteTags
         );
@@ -135,7 +127,7 @@ export const NotesModal: React.FC<NotesModalProps> = ({
     } catch (error) {
       Alert.alert('Error', 'Failed to save note');
     }
-  }, [noteTitle, noteContent, noteTags, editingNote, updateNote, createNote, groupId, sessionId, resetForm]);
+  }, [noteTitle, noteContent, noteTags, editingNote, updateNote, createNote, sessionId, resetForm]);
 
   const handleDeleteNote = useCallback((note: Note) => {
     Alert.alert(
@@ -157,12 +149,21 @@ export const NotesModal: React.FC<NotesModalProps> = ({
     onClose();
   }, [resetForm, onClose]);
 
+  // Set form data when editingNote changes
+  useEffect(() => {
+    if (editingNote) {
+      handleEditNote(editingNote);
+    }
+  }, [editingNote, handleEditNote]);
+
   // Clear form when modal closes
   useEffect(() => {
     if (!isVisible) {
       resetForm();
+    } else if (editingNote) {
+      setIsCreating(true);
     }
-  }, [isVisible, resetForm]);
+  }, [isVisible, resetForm, editingNote]);
 
   const renderNoteItem = useCallback(({ item }: { item: Note }) => {
     const tags: Tag[] = item.tags.map(tag => ({
@@ -213,7 +214,7 @@ export const NotesModal: React.FC<NotesModalProps> = ({
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ModalHeader
           title={title}
-          subtitle={`${sortedNotes.length} note${sortedNotes.length !== 1 ? 's' : ''}`}
+          subtitle={editingNote ? 'Edit Note' : `${sortedNotes.length} note${sortedNotes.length !== 1 ? 's' : ''}`}
           onClose={handleClose}
           onAction={handleCreateNote}
           actionIcon="add"
