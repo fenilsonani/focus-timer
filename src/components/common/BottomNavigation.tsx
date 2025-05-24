@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
+import { getEnhancedBorderRadius } from '../../utils/platformStyles';
 
 interface BottomNavigationProps {
   activeTab: 'home' | 'analytics' | 'notes' | 'reminders' | 'settings';
@@ -50,6 +51,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           >
             <View style={[
               styles.tabIconContainer,
+              getEnhancedBorderRadius(20),
               isActive && { backgroundColor: theme.colors.primary + '20' }
             ]}>
               <MaterialIcons
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
   tabIconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,

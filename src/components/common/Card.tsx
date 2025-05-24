@@ -6,6 +6,7 @@ import {
   GestureResponderEvent,
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
+import { getContainerStyle } from '../../utils/platformStyles';
 import * as Haptics from 'expo-haptics';
 
 interface CardProps {
@@ -51,7 +52,6 @@ export const Card: React.FC<CardProps> = ({
 
   const getCardStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      borderRadius: theme.borderRadius.lg,
       padding: theme.spacing.lg,
       opacity: disabled ? 0.6 : 1,
     };
@@ -59,18 +59,21 @@ export const Card: React.FC<CardProps> = ({
     const variantStyles: Record<typeof variant, ViewStyle> = {
       default: {
         backgroundColor: theme.colors.surface,
+        ...getContainerStyle(theme.borderRadius.lg),
       },
       elevated: {
         backgroundColor: theme.colors.surface,
-        ...theme.shadows.md,
+        ...getContainerStyle(theme.borderRadius.lg, theme.shadows.md),
       },
       outlined: {
         backgroundColor: theme.colors.surface,
+        ...getContainerStyle(theme.borderRadius.lg),
         borderWidth: 1,
         borderColor: theme.colors.border,
       },
       filled: {
         backgroundColor: theme.colors.surfaceVariant,
+        ...getContainerStyle(theme.borderRadius.lg),
       },
     };
 

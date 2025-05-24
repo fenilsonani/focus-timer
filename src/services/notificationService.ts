@@ -1,22 +1,29 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { Platform } from 'react-native';
+import Constants from 'expo-constants';
+import { Platform, Alert } from 'react-native';
 import { formatDuration } from '../utils';
 
-// Configure notification behavior
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Check if we're running in Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+
+// Configure notification behavior only if notifications are available
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 export interface NotificationPermissions {
   granted: boolean;
   canAskAgain: boolean;
+  isSupported: boolean;
 }
 
 export interface TimerNotificationData {
@@ -29,30 +36,108 @@ export interface TimerNotificationData {
 class NotificationService {
   private backgroundUpdateInterval: NodeJS.Timeout | null = null;
   private currentSessionData: TimerNotificationData | null = null;
+  private isNotificationSupported: boolean = false;
+
+  constructor() {
+    this.isNotificationSupported = !isExpoGo && Device.isDevice;
+  }
 
   // Initialize notification service
   async initialize(): Promise<void> {
-    if (Device.isDevice) {
-      await this.requestPermissions();
+    if (this.isNotificationSupported) {
+      try {
+        await this.requestPermissions();
+      } catch (error) {
+        console.warn('Failed to initialize notifications:', error);
+        this.isNotificationSupported = false;
+      }
+    } else if (isExpoGo) {
+      console.log('Running in Expo Go - notifications have limited functionality');
     }
+  }
+
+  // Check if notifications are supported
+  isSupported(): boolean {
+    return this.isNotificationSupported;
   }
 
   // Check notification permissions
   async getPermissions(): Promise<NotificationPermissions> {
-    const { status, canAskAgain } = await Notifications.getPermissionsAsync();
-    return {
-      granted: status === 'granted',
-      canAskAgain,
-    };
+    if (!this.isNotificationSupported) {
+      return {
+        granted: false,
+        canAskAgain: false,
+        isSupported: false,
+      };
+    }
+
+    try {
+      const { status, canAskAgain } = await Notifications.getPermissionsAsync();
+      return {
+        granted: status === 'granted',
+        canAskAgain,
+        isSupported: true,
+      };
+    } catch (error) {
+      console.warn('Failed to get notification permissions:', error);
+      return {
+        granted: false,
+        canAskAgain: false,
+        isSupported: false,
+      };
+    }
   }
 
   // Request notification permissions
   async requestPermissions(): Promise<NotificationPermissions> {
-    const { status, canAskAgain } = await Notifications.requestPermissionsAsync();
-    return {
-      granted: status === 'granted',
-      canAskAgain,
-    };
+    if (!this.isNotificationSupported) {
+      return {
+        granted: false,
+        canAskAgain: false,
+        isSupported: false,
+      };
+    }
+
+    try {
+      const { status, canAskAgain } = await Notifications.requestPermissionsAsync();
+      return {
+        granted: status === 'granted',
+        canAskAgain,
+        isSupported: true,
+      };
+    } catch (error) {
+      console.warn('Failed to request notification permissions:', error);
+      return {
+        granted: false,
+        canAskAgain: false,
+        isSupported: false,
+      };
+    }
+  }
+
+  // Safe notification method with fallback
+  private async safeNotification(notificationContent: {
+    title: string;
+    body: string;
+    data?: any;
+    sound?: string;
+  }): Promise<void> {
+    if (!this.isNotificationSupported) {
+      // Show in-app alert as fallback
+      Alert.alert(notificationContent.title, notificationContent.body);
+      return;
+    }
+
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: notificationContent,
+        trigger: null, // Show immediately
+      });
+    } catch (error) {
+      console.warn('Failed to send notification:', error);
+      // Fallback to alert
+      Alert.alert(notificationContent.title, notificationContent.body);
+    }
   }
 
   // Start timer notifications with live updates
@@ -63,28 +148,27 @@ class NotificationService {
     await this.stopTimerNotifications();
 
     // Show initial notification
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `🎯 ${data.sessionTitle}`,
-        body: `Session started - ${formatDuration(data.totalDuration)} remaining`,
-        data: {
-          type: 'timer_update',
-          sessionId: data.sessionId,
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: `🎯 ${data.sessionTitle}`,
+      body: `Session started - ${formatDuration(data.totalDuration)} remaining`,
+      data: {
+        type: 'timer_update',
+        sessionId: data.sessionId,
       },
-      trigger: null, // Show immediately
+      sound: 'default',
     });
 
-    // Start background updates every 60 seconds
-    this.backgroundUpdateInterval = setInterval(async () => {
-      await this.updateLiveTimerNotification();
-    }, 60000);
+    // Start background updates every 60 seconds (only if notifications are supported)
+    if (this.isNotificationSupported) {
+      this.backgroundUpdateInterval = setInterval(async () => {
+        await this.updateLiveTimerNotification();
+      }, 60000);
+    }
   }
 
   // Update live timer notification with current time
   private async updateLiveTimerNotification(): Promise<void> {
-    if (!this.currentSessionData) return;
+    if (!this.currentSessionData || !this.isNotificationSupported) return;
 
     const now = Date.now();
     const elapsed = Math.floor((now - this.currentSessionData.startTime) / 1000);
@@ -95,20 +179,14 @@ class NotificationService {
       return;
     }
 
-    // Only send notifications when app is in background
-    const appState = await Notifications.getBadgeCountAsync();
-    
     // Update the notification with current time
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `🎯 ${this.currentSessionData.sessionTitle}`,
-        body: `${formatDuration(remaining)} remaining`,
-        data: {
-          type: 'timer_update',
-          sessionId: this.currentSessionData.sessionId,
-        },
+    await this.safeNotification({
+      title: `🎯 ${this.currentSessionData.sessionTitle}`,
+      body: `${formatDuration(remaining)} remaining`,
+      data: {
+        type: 'timer_update',
+        sessionId: this.currentSessionData.sessionId,
       },
-      trigger: null,
     });
   }
 
@@ -118,17 +196,14 @@ class NotificationService {
 
     if (!this.currentSessionData) return;
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: '🎉 Session Complete!',
-        body: `Great job! You've completed your ${this.currentSessionData.sessionTitle} session.`,
-        data: {
-          type: 'session_complete',
-          sessionId: this.currentSessionData.sessionId,
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: '🎉 Session Complete!',
+      body: `Great job! You've completed your ${this.currentSessionData.sessionTitle} session.`,
+      data: {
+        type: 'session_complete',
+        sessionId: this.currentSessionData.sessionId,
       },
-      trigger: null,
+      sound: 'default',
     });
 
     this.currentSessionData = null;
@@ -136,31 +211,25 @@ class NotificationService {
 
   // Send session paused notification
   async sendSessionPausedNotification(sessionTitle: string, remainingTime: number): Promise<void> {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `⏸️ ${sessionTitle} Paused`,
-        body: `Session paused with ${formatDuration(remainingTime)} remaining`,
-        data: {
-          type: 'session_paused',
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: `⏸️ ${sessionTitle} Paused`,
+      body: `Session paused with ${formatDuration(remainingTime)} remaining`,
+      data: {
+        type: 'session_paused',
       },
-      trigger: null,
+      sound: 'default',
     });
   }
 
   // Send session resumed notification
   async sendSessionResumedNotification(sessionTitle: string, remainingTime: number): Promise<void> {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `▶️ ${sessionTitle} Resumed`,
-        body: `Session resumed with ${formatDuration(remainingTime)} remaining`,
-        data: {
-          type: 'session_resumed',
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: `▶️ ${sessionTitle} Resumed`,
+      body: `Session resumed with ${formatDuration(remainingTime)} remaining`,
+      data: {
+        type: 'session_resumed',
       },
-      trigger: null,
+      sound: 'default',
     });
   }
 
@@ -176,16 +245,13 @@ class NotificationService {
 
   // Send break time notification
   async sendBreakTimeNotification(duration: number): Promise<void> {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: '☕ Break Time!',
-        body: `Take a ${formatDuration(duration)} break. You've earned it!`,
-        data: {
-          type: 'break_time',
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: '☕ Break Time!',
+      body: `Take a ${formatDuration(duration)} break. You've earned it!`,
+      data: {
+        type: 'break_time',
       },
-      trigger: null,
+      sound: 'default',
     });
   }
 
@@ -200,55 +266,76 @@ class NotificationService {
 
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: '🔥 Streak Milestone!',
-        body: randomMessage,
-        data: {
-          type: 'streak_milestone',
-          streakCount,
-          habitTitle,
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: '🔥 Streak Milestone!',
+      body: randomMessage,
+      data: {
+        type: 'streak_milestone',
+        streakCount,
+        habitTitle,
       },
-      trigger: null,
+      sound: 'default',
     });
   }
 
   // Send habit reminder notification (immediate)
   async sendHabitReminderNotification(habitTitle: string): Promise<void> {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: '🔔 Habit Reminder',
-        body: `Time for your ${habitTitle} session!`,
-        data: {
-          type: 'habit_reminder',
-          habitTitle,
-        },
-        sound: 'default',
+    await this.safeNotification({
+      title: '🔔 Habit Reminder',
+      body: `Time for your ${habitTitle} session!`,
+      data: {
+        type: 'habit_reminder',
+        habitTitle,
       },
-      trigger: null,
+      sound: 'default',
     });
   }
 
   // Cancel all notifications
   async cancelAllNotifications(): Promise<void> {
     await this.stopTimerNotifications();
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    
+    if (this.isNotificationSupported) {
+      try {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+      } catch (error) {
+        console.warn('Failed to cancel notifications:', error);
+      }
+    }
   }
 
   // Listen to notification responses
   addNotificationResponseListener(
     listener: (response: Notifications.NotificationResponse) => void
-  ): Notifications.Subscription {
-    return Notifications.addNotificationResponseReceivedListener(listener);
+  ): Notifications.Subscription | null {
+    if (!this.isNotificationSupported) {
+      console.warn('Notification listeners not supported in current environment');
+      return null;
+    }
+
+    try {
+      return Notifications.addNotificationResponseReceivedListener(listener);
+    } catch (error) {
+      console.warn('Failed to add notification response listener:', error);
+      return null;
+    }
   }
 
   // Listen to received notifications
   addNotificationReceivedListener(
     listener: (notification: Notifications.Notification) => void
-  ): Notifications.Subscription {
-    return Notifications.addNotificationReceivedListener(listener);
+  ): Notifications.Subscription | null {
+    if (!this.isNotificationSupported) {
+      console.warn('Notification listeners not supported in current environment');
+      return null;
+    }
+
+    try {
+      return Notifications.addNotificationReceivedListener(listener);
+    } catch (error) {
+      console.warn('Failed to add notification received listener:', error);
+      return null;
+    }
   }
 }
 

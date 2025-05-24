@@ -18,6 +18,8 @@ import { Button } from '../components/common/Button';
 import { TimePickerModal } from '../components/common/TimePickerModal';
 import { ThemeSelectorModal } from '../components/common/ThemeSelectorModal';
 import { ScreenHeader } from '../components/common/ScreenHeader';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { NotificationStatus } from '../components/common/NotificationStatus';
 import { notificationService } from '../services/notificationService';
 import { formatDuration } from '../utils';
 
@@ -162,16 +164,14 @@ export const SettingsScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <StatusBar 
-        barStyle={isDark ? 'light-content' : 'dark-content'} 
-        backgroundColor={theme.colors.background}
-      />
-
+    <ScreenWrapper>
       <ScreenHeader
         title="Settings"
         subtitle="Customize your habit tracking experience"
       />
+
+      {/* Notification Status Banner */}
+      <NotificationStatus showDetails={true} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Timer Settings */}
@@ -430,7 +430,7 @@ export const SettingsScreen: React.FC = () => {
         visible={showThemeSelector}
         onClose={() => setShowThemeSelector(false)}
       />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 

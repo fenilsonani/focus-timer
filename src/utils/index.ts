@@ -162,4 +162,7 @@ export const truncateText = (text: string, maxLength: number): string => {
 
 export const capitalizeFirst = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}; 
+};
+
+// Platform-specific styling utilities
+export * from './platformStyles'; 

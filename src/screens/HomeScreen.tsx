@@ -3,9 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   TouchableOpacity,
   Alert,
 } from 'react-native';
@@ -15,6 +13,7 @@ import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { ScreenHeader } from '../components/common/ScreenHeader';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { InputModal } from '../components/common/InputModal';
 import { FolderEditModal } from '../components/common/FolderEditModal';
 import { HabitCreationModal } from '../components/common/HabitCreationModal';
@@ -135,12 +134,7 @@ export const HomeScreen: React.FC = () => {
   const breadcrumbPath = getBreadcrumbPath();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <StatusBar 
-        barStyle={isDark ? 'light-content' : 'dark-content'} 
-        backgroundColor={theme.colors.background}
-      />
-
+    <ScreenWrapper>
       <ScreenHeader
         title={currentFolder ? currentFolder.name : "Home"}
         subtitle={currentFolder ? `${childGroups.length} folders • ${childSessions.length} timers` : "Organize your habits and sessions"}
@@ -384,7 +378,7 @@ export const HomeScreen: React.FC = () => {
         onClose={() => setShowHabitModal(false)}
         onCreateHabit={handleHabitCreate}
       />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 

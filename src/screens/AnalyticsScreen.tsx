@@ -3,9 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
@@ -14,6 +12,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useAppState } from '../hooks/useAppState';
 import { Card } from '../components/common/Card';
 import { ScreenHeader } from '../components/common/ScreenHeader';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { formatDuration, formatTime } from '../utils';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -561,12 +560,7 @@ export const AnalyticsScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <StatusBar 
-        barStyle={isDark ? 'light-content' : 'dark-content'} 
-        backgroundColor={theme.colors.background}
-      />
-
+    <ScreenWrapper>
       <ScreenHeader
         title="Analytics"
         subtitle="Comprehensive insights into your productivity"
@@ -818,7 +812,7 @@ export const AnalyticsScreen: React.FC = () => {
           </View>
         </Card>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 

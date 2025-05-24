@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StatusBar, Platform, SafeAreaView } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { AppStateProvider } from './src/hooks/useAppState';
@@ -12,8 +12,12 @@ import { RemindersScreen } from './src/screens/RemindersScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { BottomNavigation } from './src/components/common/BottomNavigation';
 import { notificationService } from './src/services/notificationService';
+import { useTheme } from './src/hooks/useTheme';
+import { AndroidStatusBarSpacer } from './src/components/common/AndroidStatusBarSpacer';
 
-export default function App() {
+// Main app content component that has access to theme
+const AppContent: React.FC = () => {
+  const { theme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState<'home' | 'analytics' | 'notes' | 'reminders' | 'settings'>('home');
 
   // Initialize notification service
@@ -39,17 +43,29 @@ export default function App() {
   };
 
   return (
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <StatusBar 
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={Platform.OS === 'android' ? theme.colors.background : undefined}
+        translucent={Platform.OS === 'android'}
+      />
+      <AndroidStatusBarSpacer />
+      {renderScreen()}
+      <BottomNavigation
+        activeTab={activeTab}
+        onTabPress={setActiveTab}
+      />
+    </SafeAreaView>
+  );
+};
+
+export default function App() {
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppStateProvider>
         <ThemeProvider>
           <BottomSheetModalProvider>
-            <View style={styles.container}>
-              {renderScreen()}
-              <BottomNavigation
-                activeTab={activeTab}
-                onTabPress={setActiveTab}
-              />
-            </View>
+            <AppContent />
           </BottomSheetModalProvider>
         </ThemeProvider>
       </AppStateProvider>

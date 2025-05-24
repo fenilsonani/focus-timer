@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../hooks/useTheme';
+import { getEnhancedBorderRadius, getGradientContainerStyle } from '../../utils/platformStyles';
 import * as Haptics from 'expo-haptics';
 
 interface ButtonProps {
@@ -50,7 +51,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      borderRadius: theme.borderRadius.md,
+      ...getEnhancedBorderRadius(theme.borderRadius.md),
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
@@ -108,7 +109,7 @@ export const Button: React.FC<ButtonProps> = ({
     const sizeStyles: Record<typeof size, TextStyle> = {
       small: theme.typography.caption,
       medium: theme.typography.body,
-      large: theme.typography.bodyLarge,
+      large: theme.typography.subheading,
     };
 
     const variantStyles: Record<typeof variant, TextStyle> = {
@@ -138,7 +139,7 @@ export const Button: React.FC<ButtonProps> = ({
       >
         <LinearGradient
           colors={gradientColors}
-          style={[StyleSheet.absoluteFill, { borderRadius: theme.borderRadius.md }]}
+          style={[StyleSheet.absoluteFill, getGradientContainerStyle(theme.borderRadius.md)]}
         />
         {loading ? (
           <ActivityIndicator color="#FFFFFF" size="small" />
